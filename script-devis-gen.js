@@ -10,6 +10,11 @@ $(document).ready(function() {
     $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
 });
 
+console.log('Initial state - Radio 1:', $('.ms-radio-button-tab-is-1').prop('checked'));
+console.log('Initial state - Radio 4:', $('.ms-radio-button-tab-is-4').prop('checked'));
+console.log('Initial state - Radio 5:', $('.ms-radio-button-tab-is-5').prop('checked'));
+console.log('Initial costPerCateringStaff:', costPerCateringStaff);
+
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 let initialPriceTraiteurPerso = 0;
 let costPerCateringStaff = 0;
@@ -116,6 +121,8 @@ const updatePricesAndTotal = () => {
 
     let isSpecialRateApplied = isRadio4Checked || isRadio5Checked;
     console.log("Is Special Rate Applied:", isSpecialRateApplied);
+    console.log('Total Cost Catering Staff:', totalCostCateringStaff);
+
 
     let totalCostCateringStaff = 0;
 
@@ -173,6 +180,8 @@ const updatePricesAndTotal = () => {
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
+        console.log('Radio button clicked:', $(this).attr('class'));
+    console.log('Updated costPerCateringStaff:', costPerCateringStaff);
         costPerCateringStaff = 0;
     } else {
         costPerCateringStaff = 35;
