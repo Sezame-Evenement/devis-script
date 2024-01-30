@@ -1,4 +1,3 @@
-<script>
 
 $(document).ready(function() {
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').each(function() {
@@ -213,4 +212,3 @@ var priceText = $(sourceSelector).text();
 $(targetSelector).val(priceText);
 }
 
-</script>
