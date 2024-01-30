@@ -117,8 +117,7 @@ const updatePricesAndTotal = () => {
     let isRadio5Checked = $('.ms-radio-button-tab-is-5:checked').length > 0;
 
     let isSpecialRateApplied = isRadio4Checked || isRadio5Checked;
-    console.log("Is Special Rate Applied:", isSpecialRateApplied);
-    console.log('Total Cost Catering Staff:', totalCostCateringStaff);
+ 
 
 
     let totalCostCateringStaff = 0;
