@@ -1,22 +1,13 @@
 $(document).ready(function() {
-    const cmsCateringValue = $('#nb-personnes-final-2').attr('data');
-    $('#nb-personnes-final-2').val(cmsCateringValue);
-    console.log('Script is running');
-    console.log('Initial state - Radio 1:', $('.ms-radio-button-tab-is-1').prop('checked'));
-    console.log('Initial state - Radio 4:', $('.ms-radio-button-tab-is-4').prop('checked'));
-    console.log('Initial state - Radio 5:', $('.ms-radio-button-tab-is-5').prop('checked'));
-    console.log('Initial costPerCateringStaff:', costPerCateringStaff);
-    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').each(function() {
-        console.log($(this).attr('class') + " checked:", $(this).prop('checked'));
-    });
-    $('.ms-radio-button-tab-is-1').prop('checked', true);
-    initialPriceTraiteurPerso = 120;
-    $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
-    updatePricesAndTotal();
-    $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
-     updateTeamMembers(); 
-     $('#nb-personnes-final-2').on('input', updateTeamMembers);
+    const cmsCateringValue = $('#nb-personnes-final-2').attr('data') || 'DefaultAttendeeValue';
+    const cmsSecurityValue = $('#nombre-securite').attr('data') || 'DefaultSecurityValue';
 
+    $('#nb-personnes-final-2').val(cmsCateringValue);
+    $('#nombre-securite').val(cmsSecurityValue);
+
+    updateTeamMembers();
+
+    $('#nb-personnes-final-2, #nombre-securite').on('input', updateTeamMembers);
 });
 
 
@@ -69,15 +60,27 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 
 function updateTeamMembers() {
     const rawCateringValue = $('#nb-personnes-final-2').val();
+    const rawSecurityValue = $('#nombre-securite').val();
+
     console.log('Raw Catering Value:', rawCateringValue);
+    console.log('Raw Security Value:', rawSecurityValue);
 
     const numberOfAttendees = parseInt(rawCateringValue, 10);
+    const numberOfSecurityAttendees = parseInt(rawSecurityValue, 10);
+
     console.log('Parsed Number of Attendees:', numberOfAttendees);
+    console.log('Parsed Number of Security Attendees:', numberOfSecurityAttendees);
 
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees);
+
     console.log('Calculated Catering Team Members:', cateringTeamMembers);
+    console.log('Calculated Security Team Members:', securityTeamMembers);
 
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+    $('#nombre-securite').text(securityTeamMembers);
+}
+
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
         if (typeof updatePricesAndTotal === "function") {
             updatePricesAndTotal();
