@@ -12,6 +12,7 @@ $(document).ready(function() {
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
     updatePricesAndTotal();
     $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
+     updateTeamMembers(); 
 });
 
 
