@@ -71,15 +71,20 @@ function updateTeamMembers() {
     console.log('Parsed Number of Attendees:', numberOfAttendees);
     console.log('Parsed Number of Security Attendees:', numberOfSecurityAttendees);
 
+    if (isNaN(numberOfAttendees) || isNaN(numberOfSecurityAttendees)) {
+        console.log('Invalid input for attendees or security numbers');
+        return;
+    }
+
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
     const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees);
 
     console.log('Calculated Catering Team Members:', cateringTeamMembers);
     console.log('Calculated Security Team Members:', securityTeamMembers);
 
+    // Update the DOM with the calculated team sizes
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
     $('#nombre-securite').text(securityTeamMembers);
-}
 
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
         if (typeof updatePricesAndTotal === "function") {
