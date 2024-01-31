@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    const cmsCateringValue = $('#nb-personnes-final-2').attr('data');
+    $('#nb-personnes-final-2').val(cmsCateringValue);
     console.log('Script is running');
     console.log('Initial state - Radio 1:', $('.ms-radio-button-tab-is-1').prop('checked'));
     console.log('Initial state - Radio 4:', $('.ms-radio-button-tab-is-4').prop('checked'));
@@ -13,6 +15,8 @@ $(document).ready(function() {
     updatePricesAndTotal();
     $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
      updateTeamMembers(); 
+     $('#nb-personnes-final-2').on('input', updateTeamMembers);
+
 });
 
 
@@ -65,10 +69,13 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 
 function updateTeamMembers() {
     const rawCateringValue = $('#nb-personnes-final-2').val();
+    console.log('Raw Catering Value:', rawCateringValue);
+
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-    console.log("Number of Attendees:", numberOfAttendees); 
+    console.log('Parsed Number of Attendees:', numberOfAttendees);
+
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    console.log("Calculated Catering Team Members:", cateringTeamMembers); // Debug log
+    console.log('Calculated Catering Team Members:', cateringTeamMembers);
 
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
