@@ -1,16 +1,11 @@
 $(document).ready(function() {
-    const cmsCateringValue = $('#nb-personnes-final-2').attr('data') || 'DefaultAttendeeValue';
-    const cmsSecurityValue = $('#nombre-securite').attr('data') || 'DefaultSecurityValue';
-
-    $('#nb-personnes-final-2').val(cmsCateringValue);
-    $('#nombre-securite').val(cmsSecurityValue);
-
-    updateTeamMembers();
-
-    $('#nb-personnes-final-2, #nombre-securite').on('input', updateTeamMembers);
+    console.log('Script is running');
+    $('.ms-radio-button-tab-is-1').prop('checked', true);
+    initialPriceTraiteurPerso = 120;
+    $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
+    updatePricesAndTotal();
+    $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
 });
-
-
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 let initialPriceTraiteurPerso = 0;
@@ -58,35 +53,16 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
     return securityTeamSize ? securityTeamSize.team : "Error";
 }
 
-function isEventAfter22h00(eventTimeString) {
-    const endTimeString = eventTimeString.split('au')[1].trim(); 
-    const hoursMinutes = timePart.split('h');
-    
-    const hours = parseInt(hoursMinutes[0], 10);
-    const minutes = parseInt(hoursMinutes[1], 10) || 0; 
-    return (hours >= 22 || hours < 6);
-}
-
 function updateTeamMembers() {
     const rawCateringValue = $('#nb-personnes-final-2').val();
-    console.log('Raw Catering Value:', rawCateringValue);
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-    console.log('Parsed Number of Attendees:', numberOfAttendees);
     const eventTimeString = $('.data-text-item').text();
-
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
         return;
     }
-
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-
-    console.log('Calculated Catering Team Members:', cateringTeamMembers);
-    console.log('Calculated Security Team Members:', securityTeamMembers);
-
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
- 
     if (isEventAfter22h00(eventTimeString)) {
         const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
         $('#nombre-securite').text(securityTeamMembers).show();
@@ -102,23 +78,18 @@ function updateTeamMembers() {
     }
 }
 
-$(document).ready(function() {
-    const cmsCateringValue = $('#nb-personnes-final-2').attr('data') || 'DefaultAttendeeValue';
-    $('#nb-personnes-final-2').val(cmsCateringValue);
-
-     if ($('.ms-radio-button-tab-is-4').prop('checked') || $('.ms-radio-button-tab-is-5').prop('checked')) {
-        $('.wrapper-equipier-traiteur').hide();
-    } else {
-        $('.wrapper-equipier-traiteur').show();
-    }
-
-    updateTeamMembers();
-
-    $('#nb-personnes-final-2').on('input', updateTeamMembers);
-});
+function isEventAfter22h00(eventTimeString) {
+    const endTimeString = eventTimeString.split('au')[1].trim();
+    const timePart = endTimeString.split('à')[1].trim();
+    const hoursMinutes = timePart.split('h');
+    
+    const hours = parseInt(hoursMinutes[0], 10);
+    const minutes = parseInt(hoursMinutes[1], 10) || 0;
+    
+    return (hours >= 22 || hours < 6);
+}
 
 const updatePricesAndTotal = () => {
-    
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
@@ -164,14 +135,12 @@ const updatePricesAndTotal = () => {
 
     let isRadio4Checked = $('.ms-radio-button-tab-is-4:checked').length > 0;
     let isRadio5Checked = $('.ms-radio-button-tab-is-5:checked').length > 0;
-    let isSpecialRateApplied = isRadio4Checked || isRadio5Checked;
 
     let totalCostCateringStaff = 0;
 
-    if (!isSpecialRateApplied) {
+    if (!isRadio4Checked && !isRadio5Checked) {
         totalCostCateringStaff = numberOfCateringStaff * costPerCateringStaff;
     }
-
 
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
@@ -207,31 +176,19 @@ const updatePricesAndTotal = () => {
     const generalTVA = (priceSalleValue + priceTraiteurPersoValue) * 0.2;
     const totalTVA = generalTVA + specialTVAValue + tvaRegisseur + tvaCateringStaff + tvaSecurityStaff;
 
- const totalHT = totalSum;
-const totalTTC = totalSum + totalTVA;
+    const totalHT = totalSum;
+    const totalTTC = totalSum + totalTVA;
 
-const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
-const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
-const formattedTVA = totalTVA.toFixed(2).replace('.', ',');
+    const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
+    const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
+    const formattedTVA = totalTVA.toFixed(2).replace('.', ',');
 
-$('.total-ht').text(formattedTotalHT);
-$('.total-ttc').text(formattedTotalTTC);
-$('.price-tva').text(formattedTVA);
+    $('.total-ht').text(formattedTotalHT);
+    $('.total-ttc').text(formattedTotalTTC);
+    $('.price-tva').text(formattedTVA);
 
-$('.hack42-send-value').val(formattedTotalHT);
-
-$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
-        costPerCateringStaff = 0;
-        $('.wrapper-equipier-traiteur').hide();
-    } else {
-        costPerCateringStaff = 35;
-        $('.wrapper-equipier-traiteur').show();
-    }
-    console.log('Radio button clicked:', $(this).attr('class'));
-    console.log('Updated costPerCateringStaff:', costPerCateringStaff);
-    resetPricingCalculator();
-});
+    $('.hack42-send-value').val(formattedTotalHT);
+};
 
 function calculateCategorySum(className, numberOfPersons) {
     let sum = 0;
@@ -247,11 +204,21 @@ function calculateCategorySum(className, numberOfPersons) {
     return sum;
 }
 
-
 function updateSumDisplay(targetClass, sum) {
     const formattedSum = sum.toFixed(2).replace('.', ',');
     $(`.${targetClass}`).text(formattedSum);
 }
+
+$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
+        costPerCateringStaff = 0;
+        $('.wrapper-equipier-traiteur').hide();
+    } else {
+        costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
+        $('.wrapper-equipier-traiteur').show();
+    }
+    resetPricingCalculator();
+});
 
 function resetPricingCalculator() {
     $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').prop('checked', false);
@@ -267,26 +234,7 @@ $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-s
     updatePricesAndTotal();
 });
 
-$('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    updatePricesAndTotal();
-});
-
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal();
-});
-
-$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    if ($(this).hasClass('ms-radio-button-tab-is-4')) {
-        initialPriceTraiteurPerso = 500;
-    } else if ($(this).hasClass('ms-radio-button-tab-is-1') || $(this).hasClass('ms-radio-button-tab-is-2') || $(this).hasClass('ms-radio-button-tab-is-3')) {
-        initialPriceTraiteurPerso = 120;
-    } else {
-        initialPriceTraiteurPerso = 0.00;
-    }
-    resetPricingCalculator();
-});
-
-$('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     updatePricesAndTotal();
 });
 
@@ -312,6 +260,44 @@ function updatePriceField(sourceSelector, targetSelector) {
     $(targetSelector).val(priceText);
 }
 
+$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    if ($(this).hasClass('ms-radio-button-tab-is-4')) {
+        initialPriceTraiteurPerso = 500;
+    } else if ($(this).hasClass('ms-radio-button-tab-is-1') || $(this).hasClass('ms-radio-button-tab-is-2') || $(this).hasClass('ms-radio-button-tab-is-3')) {
+        initialPriceTraiteurPerso = 120;
+    } else {
+        initialPriceTraiteurPerso = 0.00;
+    }
+    resetPricingCalculator();
+});
+
+$('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    console.log("Radio button 4 or 5 clicked");
+    updatePricesAndTotal();
+});
+
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
     updatePricesAndTotal();
 });
+
+Webflow.push(function() {
+    var observerConfig = { subtree: true, childList: true };
+    var observer = new MutationObserver(function() {
+        updatePriceField('.price-specialite', '#specialite-traiteur-prix');
+        updatePriceField('.price-petitdejeuner', '#petit-dejeuner-prix');
+        updatePriceField('.price-dejeuner', '#dejeuner-prix');
+        updatePriceField('.price-pause', '#pause-apres-midi-prix');
+        updatePriceField('.price-diner', '#diner-prix');
+        updatePriceField('.price-traiteur-perso', '#cout-formule-traiteur-prix');
+        updatePriceField('.price-tva', '#tva-prix');
+        updatePriceField('.total-ht', '#prix-ht');
+        updatePriceField('.total-ttc', '#prix-ttc');
+    });
+    observer.observe(document.body, observerConfig);
+});
+
+function updatePriceField(sourceSelector, targetSelector) {
+    var priceText = $(sourceSelector).text();
+    $(targetSelector).val(priceText);
+}
+
