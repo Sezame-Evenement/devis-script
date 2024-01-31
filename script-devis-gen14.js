@@ -59,14 +59,11 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function isEventAfter22h00(eventTimeString) {
-    const endTimeString = eventTimeString.split('au')[1].trim(); // Extracts the part after 'au'
-    const timePart = endTimeString.split('à')[1].trim(); // Extracts the time part
+    const endTimeString = eventTimeString.split('au')[1].trim(); 
     const hoursMinutes = timePart.split('h');
     
     const hours = parseInt(hoursMinutes[0], 10);
-    const minutes = parseInt(hoursMinutes[1], 10) || 0; // Default to 0 if minutes are not present
-
-    // Check if time is after 22:00 or before 06:00
+    const minutes = parseInt(hoursMinutes[1], 10) || 0; 
     return (hours >= 22 || hours < 6);
 }
 
@@ -79,7 +76,6 @@ function updateTeamMembers() {
 
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
-        // Optionally, handle invalid input by setting default values or displaying an error
         return;
     }
 
@@ -107,9 +103,14 @@ function updateTeamMembers() {
 }
 
 $(document).ready(function() {
-    // Set the initial value for number of attendees
     const cmsCateringValue = $('#nb-personnes-final-2').attr('data') || 'DefaultAttendeeValue';
     $('#nb-personnes-final-2').val(cmsCateringValue);
+
+     if ($('.ms-radio-button-tab-is-4').prop('checked') || $('.ms-radio-button-tab-is-5').prop('checked')) {
+        $('.wrapper-equipier-traiteur').hide();
+    } else {
+        $('.wrapper-equipier-traiteur').show();
+    }
 
     updateTeamMembers();
 
@@ -206,25 +207,26 @@ const updatePricesAndTotal = () => {
     const generalTVA = (priceSalleValue + priceTraiteurPersoValue) * 0.2;
     const totalTVA = generalTVA + specialTVAValue + tvaRegisseur + tvaCateringStaff + tvaSecurityStaff;
 
-    const totalHT = totalSum;
-    const totalTTC = totalSum + totalTVA;
+ const totalHT = totalSum;
+const totalTTC = totalSum + totalTVA;
 
-    const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
-    const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
-    const formattedTVA = totalTVA.toFixed(2).replace('.', ',');
+const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
+const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
+const formattedTVA = totalTVA.toFixed(2).replace('.', ',');
 
-    $('.total-ht').text(formattedTotalHT);
-    $('.total-ttc').text(formattedTotalTTC);
-    $('.price-tva').text(formattedTVA);
+$('.total-ht').text(formattedTotalHT);
+$('.total-ttc').text(formattedTotalTTC);
+$('.price-tva').text(formattedTVA);
 
-    $('.hack42-send-value').val(formattedTotalHT);
-};
+$('.hack42-send-value').val(formattedTotalHT);
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
-                costPerCateringStaff = 0;
+        costPerCateringStaff = 0;
+        $('.wrapper-equipier-traiteur').hide();
     } else {
         costPerCateringStaff = 35;
+        $('.wrapper-equipier-traiteur').show();
     }
     console.log('Radio button clicked:', $(this).attr('class'));
     console.log('Updated costPerCateringStaff:', costPerCateringStaff);
@@ -244,6 +246,7 @@ function calculateCategorySum(className, numberOfPersons) {
     });
     return sum;
 }
+
 
 function updateSumDisplay(targetClass, sum) {
     const formattedSum = sum.toFixed(2).replace('.', ',');
