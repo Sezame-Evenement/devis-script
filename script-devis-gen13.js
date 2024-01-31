@@ -58,12 +58,24 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
     return securityTeamSize ? securityTeamSize.team : "Error";
 }
 
+function isEventAfter22h00(eventTimeString) {
+    const endTimeString = eventTimeString.split('au')[1].trim(); // Extracts the part after 'au'
+    const timePart = endTimeString.split('à')[1].trim(); // Extracts the time part
+    const hoursMinutes = timePart.split('h');
+    
+    const hours = parseInt(hoursMinutes[0], 10);
+    const minutes = parseInt(hoursMinutes[1], 10) || 0; // Default to 0 if minutes are not present
+
+    // Check if time is after 22:00 or before 06:00
+    return (hours >= 22 || hours < 6);
+}
+
 function updateTeamMembers() {
     const rawCateringValue = $('#nb-personnes-final-2').val();
     console.log('Raw Catering Value:', rawCateringValue);
-
     const numberOfAttendees = parseInt(rawCateringValue, 10);
     console.log('Parsed Number of Attendees:', numberOfAttendees);
+    const eventTimeString = $('.data-text-item').text();
 
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
@@ -78,9 +90,15 @@ function updateTeamMembers() {
     console.log('Calculated Security Team Members:', securityTeamMembers);
 
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    $('#nombre-securite').text(securityTeamMembers);
-
-    // Check if special radio buttons are not checked
+ 
+    if (isEventAfter22h00(eventTimeString)) {
+        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+        $('#nombre-securite').text(securityTeamMembers).show();
+        $('.wrapper-security').show();
+    } else {
+        $('#nombre-securite').text(0).hide();
+        $('.wrapper-security').hide();
+    }
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
         if (typeof updatePricesAndTotal === "function") {
             updatePricesAndTotal();
@@ -95,7 +113,6 @@ $(document).ready(function() {
 
     updateTeamMembers();
 
-    // Bind event listener for changes in the number of attendees
     $('#nb-personnes-final-2').on('input', updateTeamMembers);
 });
 
