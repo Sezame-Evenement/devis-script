@@ -60,38 +60,44 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 
 function updateTeamMembers() {
     const rawCateringValue = $('#nb-personnes-final-2').val();
-    const rawSecurityValue = $('#nombre-securite').val();
-
     console.log('Raw Catering Value:', rawCateringValue);
-    console.log('Raw Security Value:', rawSecurityValue);
 
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-    const numberOfSecurityAttendees = parseInt(rawSecurityValue, 10);
-
     console.log('Parsed Number of Attendees:', numberOfAttendees);
-    console.log('Parsed Number of Security Attendees:', numberOfSecurityAttendees);
 
-    if (isNaN(numberOfAttendees) || isNaN(numberOfSecurityAttendees)) {
-        console.log('Invalid input for attendees or security numbers');
+    if (isNaN(numberOfAttendees)) {
+        console.log('Invalid input for number of attendees');
+        // Optionally, handle invalid input by setting default values or displaying an error
         return;
     }
 
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees);
+    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
 
     console.log('Calculated Catering Team Members:', cateringTeamMembers);
     console.log('Calculated Security Team Members:', securityTeamMembers);
 
-    // Update the DOM with the calculated team sizes
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
     $('#nombre-securite').text(securityTeamMembers);
 
+    // Check if special radio buttons are not checked
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
         if (typeof updatePricesAndTotal === "function") {
             updatePricesAndTotal();
         }
     }
 }
+
+$(document).ready(function() {
+    // Set the initial value for number of attendees
+    const cmsCateringValue = $('#nb-personnes-final-2').attr('data') || 'DefaultAttendeeValue';
+    $('#nb-personnes-final-2').val(cmsCateringValue);
+
+    updateTeamMembers();
+
+    // Bind event listener for changes in the number of attendees
+    $('#nb-personnes-final-2').on('input', updateTeamMembers);
+});
 
 const updatePricesAndTotal = () => {
     
