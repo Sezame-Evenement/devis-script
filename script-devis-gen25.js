@@ -61,6 +61,7 @@ function updateTeamMembers() {
         console.log('Invalid input for number of attendees');
         return;
     }
+
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
     if (isEventAfter22h00(eventTimeString)) {
@@ -70,7 +71,7 @@ function updateTeamMembers() {
     } else {
         $('#nombre-securite').text(0).hide();
         $('.wrapper-security').hide();
-        $('#staff-securite').val(0); // Set the input field value to 0 when .wrapper-security is hidden
+        $('#staff-securite').val(0);
     }
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
         if (typeof updatePricesAndTotal === "function") {
@@ -83,7 +84,8 @@ function isEventAfter22h00(eventTimeString) {
     const endTimeString = eventTimeString.split('au')[1].trim();
     const timePart = endTimeString.split('à')[1].trim();
     const hoursMinutes = timePart.split('h');
-    
+
+
     const hours = parseInt(hoursMinutes[0], 10);
     const minutes = parseInt(hoursMinutes[1], 10) || 0;
     
@@ -94,7 +96,7 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
         costPerCateringStaff = 0;
         $('.wrapper-equipier-traiteur').hide();
-        $('#staff-traiteur').val(0); // Set the input field value to 0 when .wrapper-equipier-traiteur is hidden
+        $('#staff-traiteur').val(0);
     } else {
         costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
         $('.wrapper-equipier-traiteur').show();
@@ -115,8 +117,7 @@ $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-s
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', updatePricesAndTotal);
 
-
-const updatePricesAndTotal = () => {
+function updatePricesAndTotal() {
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
