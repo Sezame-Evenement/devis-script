@@ -309,6 +309,8 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
+    $('#staff-traiteur').val(0).data('reset', true);
+    $('#staff-securite').val(0).data('reset', true);
     updatePricesAndTotal();
 });
 
