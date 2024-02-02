@@ -38,6 +38,7 @@ function getNumberOfCateringTeamMembers(numberOfAttendees) {
     let cateringTeamSize = cateringBrackets.find(bracket => numberOfAttendees >= bracket.min && numberOfAttendees <= bracket.max);
     return cateringTeamSize ? cateringTeamSize.team : "Error";
 }
+
 function getNumberOfSecurityMembers(numberOfAttendees) {
     const securityBrackets = [
         { min: 0, max: 99, team: 1 },
@@ -71,7 +72,6 @@ function updateTeamMembers() {
         $('#nombre-securite').text(0).hide();
         $('.wrapper-security').hide();
         $('#staff-securite').val(0);
-        console.log('Security staff input reset to 0');
     }
     if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
         if (typeof updatePricesAndTotal === "function") {
@@ -84,9 +84,11 @@ function isEventAfter22h00(eventTimeString) {
     const endTimeString = eventTimeString.split('au')[1].trim();
     const timePart = endTimeString.split('à')[1].trim();
     const hoursMinutes = timePart.split('h');
+
+
     const hours = parseInt(hoursMinutes[0], 10);
     const minutes = parseInt(hoursMinutes[1], 10) || 0;
-
+    
     return (hours >= 22 || hours < 6);
 }
 
@@ -95,7 +97,6 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
         costPerCateringStaff = 0;
         $('.wrapper-equipier-traiteur').hide();
         $('#staff-traiteur').val(0);
-        console.log('Catering staff input reset to 0');
     } else {
         costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
         $('.wrapper-equipier-traiteur').show();
@@ -110,7 +111,6 @@ function resetPricingCalculator() {
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
     $('.total-ht, .total-ttc, .price-tva').text('0,00');
     updatePricesAndTotal();
-    console.log('Pricing calculator reset');
 }
 
 $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').click(updatePricesAndTotal);
@@ -160,7 +160,6 @@ function updatePricesAndTotal() {
     sumDiner1 = calculateCategorySum('checkbox-devis-diner-1', numberOfPersonsDiner1);
     sumDiner2 = calculateCategorySum('checkbox-devis-diner-2', numberOfPersonsDiner2);
     sumDiner3 = calculateCategorySum('checkbox-devis-diner-3', numberOfPersonsDiner3);
-
 
     let isRadio4Checked = $('.ms-radio-button-tab-is-4:checked').length > 0;
     let isRadio5Checked = $('.ms-radio-button-tab-is-5:checked').length > 0;
@@ -217,8 +216,6 @@ function updatePricesAndTotal() {
     $('.price-tva').text(formattedTVA);
 
     $('.hack42-send-value').val(formattedTotalHT);
-
-    console.log('Prices and totals updated');
 };
 
 function calculateCategorySum(className, numberOfPersons) {
