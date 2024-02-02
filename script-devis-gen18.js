@@ -296,8 +296,7 @@ Webflow.push(function() {
         updatePriceField('.price-tva', '#tva-prix');
         updatePriceField('.total-ht', '#prix-ht');
         updatePriceField('.total-ttc', '#prix-ttc');
-        updatePriceField('.nombre-equipier-traiteur', '#staff-traiteur');
-        updatePriceField('.nombre-securite', '#staff-securite');
+      
 
     });
     observer.observe(document.body, observerConfig);
