@@ -253,6 +253,7 @@ Webflow.push(function() {
         updatePriceField('.total-ttc', '#prix-ttc');
         updatePriceField('.nombre-equipier-traiteur', '#staff-traiteur');
         updatePriceField('.nombre-securite', '#staff-securite');
+        updatePriceField('.price-staff', '#prix-staff-total');
     
 
     });
@@ -298,6 +299,7 @@ Webflow.push(function() {
         updatePriceField('.total-ttc', '#prix-ttc');
         updatePriceField('.nombre-equipier-traiteur', '#staff-traiteur');
         updatePriceField('.nombre-securite', '#staff-securite');
+        updatePriceField('.price-staff', '#prix-staff-total');
       
 
     });
