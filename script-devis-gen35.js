@@ -62,20 +62,21 @@ function updateTeamMembers() {
         return;
     }
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    if (isEventAfter22h00(eventTimeString)) {
-        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-        $('#nombre-securite').text(securityTeamMembers).show();
-        $('.wrapper-security').show();
-    } else {
-        $('#nombre-securite').text(0).hide();
-        $('.wrapper-security').hide();
+$('#nombre-equipier-traiteur').text(cateringTeamMembers);
+if (isEventAfter22h00(eventTimeString)) {
+    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+    $('#nombre-securite').text(securityTeamMembers).show();
+    $('.wrapper-security').show();
+} else {
+    $('#nombre-securite').text(0).hide();
+    $('.wrapper-security').hide();
+    $('#staff-securite').val(0); 
+}
+if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
+    if (typeof updatePricesAndTotal === "function") {
+        updatePricesAndTotal();
     }
-    if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
-        if (typeof updatePricesAndTotal === "function") {
-            updatePricesAndTotal();
-        }
-    }
+}
 }
 
 function isEventAfter22h00(eventTimeString) {
