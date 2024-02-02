@@ -4,8 +4,15 @@ $(document).ready(function() {
     initialPriceTraiteurPerso = 120;
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
     updatePricesAndTotal();
+
     $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
+
+    $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+        $('#staff-traiteur, #staff-securite').val(0);
+        updatePricesAndTotal();
+    });
 });
+
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 let initialPriceTraiteurPerso = 0;
