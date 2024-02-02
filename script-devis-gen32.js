@@ -12,7 +12,6 @@ let initialPriceTraiteurPerso = 0;
 let YOUR_DEFAULT_CATERING_STAFF_COST = 35; 
 let costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
 
-
 function getNumberOfCateringTeamMembers(numberOfAttendees) {
     const cateringBrackets = [
         { min: 0, max: 49, team: 2 },
@@ -310,8 +309,6 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
-    $('#staff-traiteur').val(0).data('reset', true);
-    $('#staff-securite').val(0).data('reset', true);
     updatePricesAndTotal();
 });
 
