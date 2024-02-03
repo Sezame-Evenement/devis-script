@@ -136,11 +136,10 @@ const updatePricesAndTotal = () => {
     sumDiner2 = calculateCategorySum('checkbox-devis-diner-2', numberOfPersonsDiner2);
     sumDiner3 = calculateCategorySum('checkbox-devis-diner-3', numberOfPersonsDiner3);
 
-    const totalCostCateringStaff = !isRadio4Or5Checked ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST : 0;
-    const totalCostSecurityStaff = !isRadio4Or5Checked ? numberOfSecurityStaff * 35 : 0;
-    const totalStaffCostWithoutTVA = totalCostCateringStaff + totalCostSecurityStaff;
-
-    // Set the values for '#total-staff' and '#staff-securite'
+    let totalCostCateringStaff = !isRadio4Or5Checked ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST : 0;
+    let numberOfSecurityStaff = Number($('#nombre-securite').text());
+    let totalCostSecurityStaff = !isRadio4Or5Checked ? numberOfSecurityStaff * 35 : 0;
+    let totalStaffCostWithoutTVA = totalCostCateringStaff + totalCostSecurityStaff;
     $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
     if (isSecurityWrapperHidden || isRadio4Or5Checked) {
         $('#staff-securite').val(0);
