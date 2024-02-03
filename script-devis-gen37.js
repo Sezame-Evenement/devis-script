@@ -148,7 +148,6 @@ const updatePricesAndTotal = () => {
     $('.total-price').text(totalPrice.toFixed(2));
 
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
-    const numberOfSecurityStaff = Number($('#nombre-securite').text());
 
     const costPerRegisseur = 40;
     const costPerSecurityStaff = 35;
