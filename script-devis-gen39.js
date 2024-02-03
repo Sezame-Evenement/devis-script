@@ -136,15 +136,25 @@ const updatePricesAndTotal = () => {
     sumDiner2 = calculateCategorySum('checkbox-devis-diner-2', numberOfPersonsDiner2);
     sumDiner3 = calculateCategorySum('checkbox-devis-diner-3', numberOfPersonsDiner3);
 
-    let totalCostCateringStaff = !isRadio4Or5Checked ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST : 0;
-    let numberOfSecurityStaff = Number($('#nombre-securite').text());
-    let totalCostSecurityStaff = !isRadio4Or5Checked ? numberOfSecurityStaff * 35 : 0;
-    let totalStaffCostWithoutTVA = totalCostCateringStaff + totalCostSecurityStaff;
+    const totalCostCateringStaff = !isRadio4Or5Checked ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST : 0;
+    const totalCostSecurityStaff = !isRadio4Or5Checked ? numberOfSecurityStaff * 35 : 0;
+    const totalStaffCostWithoutTVA = totalCostCateringStaff + totalCostSecurityStaff;
+
+    // Set the values for '#total-staff' and '#staff-securite'
     $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
-    if (isSecurityWrapperHidden || isRadio4Or5Checked) $('#staff-securite').val(0);
-    let isTraiteurWrapperHidden = !$('.wrapper-equipier-traiteur').is(':visible');
-    if (isTraiteurWrapperHidden || isRadio4Or5Checked) $('#staff-traiteur').val(0);
-    let totalPrice = sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3 + totalStaffCostWithoutTVA;
+    if (isSecurityWrapperHidden || isRadio4Or5Checked) {
+        $('#staff-securite').val(0);
+    }
+
+    // Set the value for '#staff-traiteur'
+    if (isTraiteurWrapperHidden || isRadio4Or5Checked) {
+        $('#staff-traiteur').val(0);
+    }
+
+    // Calculate the total price
+    const totalPrice = sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3 + totalStaffCostWithoutTVA;
+
+    // Update the '.total-price' element
     $('.total-price').text(totalPrice.toFixed(2));
 
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
