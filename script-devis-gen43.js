@@ -73,7 +73,7 @@ if (isEventAfter22h00(eventTimeString)) {
     $('#staff-securite').val(0); 
 }
 
-}
+
 }
 
 function isEventAfter22h00(eventTimeString) {
