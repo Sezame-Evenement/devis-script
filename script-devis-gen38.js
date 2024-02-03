@@ -153,10 +153,7 @@ const updatePricesAndTotal = () => {
     const costPerSecurityStaff = 35;
 
     const totalCostRegisseur = numberOfRegisseurs * costPerRegisseur;
-    const totalCostSecurityStaff = numberOfSecurityStaff * costPerSecurityStaff;
-
-    const totalStaffCostWithoutTVA = totalCostRegisseur + totalCostCateringStaff + totalCostSecurityStaff;
-
+  
     $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
 
     const tvaRate = 0.2;
