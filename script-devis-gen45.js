@@ -280,6 +280,16 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
     updatePricesAndTotal();
+    
+    // Reset values explicitly
+    $('#staff-traiteur').val(0);
+    $('#staff-securite').val(0);
+
+    // Additional logic to ensure values are not overwritten by other scripts or mutation observers
+    setTimeout(function() {
+        $('#staff-traiteur').val(0);
+        $('#staff-securite').val(0);
+    }, 100); // Adjust timeout as necessary
 });
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
