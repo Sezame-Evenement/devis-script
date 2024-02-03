@@ -11,7 +11,6 @@ let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, ""
 let initialPriceTraiteurPerso = 0;
 let YOUR_DEFAULT_CATERING_STAFF_COST = 35; 
 let costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
-let preventUpdate = false; 
 
 function getNumberOfCateringTeamMembers(numberOfAttendees) {
     const cateringBrackets = [
@@ -55,7 +54,6 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function updateTeamMembers() {
-    if (preventUpdate) return;
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
     const eventTimeString = $('.data-text-item').text();
@@ -64,21 +62,21 @@ function updateTeamMembers() {
         return;
     }
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    if (isEventAfter22h00(eventTimeString)) {
-        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-        $('#nombre-securite').text(securityTeamMembers).show();
-        $('.wrapper-security').show();
-    } else {
-        $('#nombre-securite').text(0).hide();
-        $('.wrapper-security').hide();
-        $('#staff-securite').val(0); 
+$('#nombre-equipier-traiteur').text(cateringTeamMembers);
+if (isEventAfter22h00(eventTimeString)) {
+    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+    $('#nombre-securite').text(securityTeamMembers).show();
+    $('.wrapper-security').show();
+} else {
+    $('#nombre-securite').text(0).hide();
+    $('.wrapper-security').hide();
+    $('#staff-securite').val(0); 
+}
+if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
+    if (typeof updatePricesAndTotal === "function") {
+        updatePricesAndTotal();
     }
-    if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
-        if (typeof updatePricesAndTotal === "function") {
-            updatePricesAndTotal();
-        }
-    }
+}
 }
 
 function isEventAfter22h00(eventTimeString) {
@@ -93,7 +91,6 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 const updatePricesAndTotal = () => {
-    if (preventUpdate) return;
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
@@ -139,23 +136,31 @@ const updatePricesAndTotal = () => {
 
     let isRadio4Checked = $('.ms-radio-button-tab-is-4:checked').length > 0;
     let isRadio5Checked = $('.ms-radio-button-tab-is-5:checked').length > 0;
+
     let totalCostCateringStaff = 0;
+
     if (!isRadio4Checked && !isRadio5Checked) {
         totalCostCateringStaff = numberOfCateringStaff * costPerCateringStaff;
     }
+
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
+
     const costPerRegisseur = 40;
     const costPerSecurityStaff = 35;
+
     const totalCostRegisseur = numberOfRegisseurs * costPerRegisseur;
     const totalCostSecurityStaff = numberOfSecurityStaff * costPerSecurityStaff;
+
     const totalStaffCostWithoutTVA = totalCostRegisseur + totalCostCateringStaff + totalCostSecurityStaff;
 
     $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
+
     const tvaRate = 0.2;
     const tvaRegisseur = totalCostRegisseur * tvaRate;
     const tvaCateringStaff = totalCostCateringStaff * tvaRate;
     const tvaSecurityStaff = totalCostSecurityStaff * tvaRate;
+
     const specialTVAValue = (sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3) * 0.1;
 
     updateSumDisplay('price-specialite', sumSpecialite1 + sumSpecialite2 + sumSpecialite3);
@@ -163,19 +168,26 @@ const updatePricesAndTotal = () => {
     updateSumDisplay('price-dejeuner', sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4);
     updateSumDisplay('price-pause', sumPause);
     updateSumDisplay('price-diner', sumDiner1 + sumDiner2 + sumDiner3);
+
     const priceSalleValue = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
     const priceTraiteurPersoValue = Number($('.price-traiteur-perso').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
+
     const totalSum = sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3 + priceSalleValue + priceTraiteurPersoValue + totalStaffCostWithoutTVA;
+
     const generalTVA = (priceSalleValue + priceTraiteurPersoValue) * 0.2;
     const totalTVA = generalTVA + specialTVAValue + tvaRegisseur + tvaCateringStaff + tvaSecurityStaff;
+
     const totalHT = totalSum;
     const totalTTC = totalSum + totalTVA;
+
     const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
     const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
     const formattedTVA = totalTVA.toFixed(2).replace('.', ',');
+
     $('.total-ht').text(formattedTotalHT);
     $('.total-ttc').text(formattedTotalTTC);
     $('.price-tva').text(formattedTVA);
+
     $('.hack42-send-value').val(formattedTotalHT);
 };
 
@@ -202,12 +214,6 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
         costPerCateringStaff = 0;
         $('.wrapper-equipier-traiteur').hide();
-        preventUpdate = true; // Prevent updates when radio buttons 4 or 5 are clicked
-        $('#staff-traiteur').val(0);
-        $('#staff-securite').val(0);
-        setTimeout(function() {
-            preventUpdate = false; // Allow updates again after a delay
-        }, 500); // Adjust the delay as needed
     } else {
         costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
         $('.wrapper-equipier-traiteur').show();
@@ -249,6 +255,8 @@ Webflow.push(function() {
         updatePriceField('.nombre-equipier-traiteur', '#staff-traiteur');
         updatePriceField('.nombre-securite', '#staff-securite');
         updatePriceField('.price-staff', '#prix-staff-total');
+    
+
     });
     observer.observe(document.body, observerConfig);
 });
@@ -273,3 +281,33 @@ $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
     updatePricesAndTotal();
 });
+
+$('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
+    updatePricesAndTotal();
+});
+
+Webflow.push(function() {
+    var observerConfig = { subtree: true, childList: true };
+    var observer = new MutationObserver(function() {
+        updatePriceField('.price-specialite', '#specialite-traiteur-prix');
+        updatePriceField('.price-petitdejeuner', '#petit-dejeuner-prix');
+        updatePriceField('.price-dejeuner', '#dejeuner-prix');
+        updatePriceField('.price-pause', '#pause-apres-midi-prix');
+        updatePriceField('.price-diner', '#diner-prix');
+        updatePriceField('.price-traiteur-perso', '#cout-formule-traiteur-prix');
+        updatePriceField('.price-tva', '#tva-prix');
+        updatePriceField('.total-ht', '#prix-ht');
+        updatePriceField('.total-ttc', '#prix-ttc');
+        updatePriceField('.nombre-equipier-traiteur', '#staff-traiteur');
+        updatePriceField('.nombre-securite', '#staff-securite');
+        updatePriceField('.price-staff', '#prix-staff-total');
+      
+
+    });
+    observer.observe(document.body, observerConfig);
+});
+
+function updatePriceField(sourceSelector, targetSelector) {
+    var priceText = $(sourceSelector).text();
+    $(targetSelector).val(priceText);
+}
