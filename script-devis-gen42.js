@@ -72,10 +72,7 @@ if (isEventAfter22h00(eventTimeString)) {
     $('.wrapper-security').hide();
     $('#staff-securite').val(0); 
 }
-if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
-    if (typeof updatePricesAndTotal === "function") {
-        updatePricesAndTotal();
-    }
+
 }
 }
 
