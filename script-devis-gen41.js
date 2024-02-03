@@ -92,8 +92,6 @@ function isEventAfter22h00(eventTimeString) {
 
 const updatePricesAndTotal = () => {
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
-    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4').prop('checked') || $('.ms-radio-button-tab-is-5').prop('checked');
-    let isSecurityWrapperHidden = !$('.wrapper-security').is(':visible');
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
     let sumSpecialite3 = 0;
@@ -136,33 +134,26 @@ const updatePricesAndTotal = () => {
     sumDiner2 = calculateCategorySum('checkbox-devis-diner-2', numberOfPersonsDiner2);
     sumDiner3 = calculateCategorySum('checkbox-devis-diner-3', numberOfPersonsDiner3);
 
-    let totalCostCateringStaff = !isRadio4Or5Checked ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST : 0;
-    let numberOfSecurityStaff = Number($('#nombre-securite').text());
-    let totalCostSecurityStaff = !isRadio4Or5Checked ? numberOfSecurityStaff * 35 : 0;
-    let totalStaffCostWithoutTVA = totalCostCateringStaff + totalCostSecurityStaff;
-    $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
-    if (isSecurityWrapperHidden || isRadio4Or5Checked) {
-        $('#staff-securite').val(0);
+    let isRadio4Checked = $('.ms-radio-button-tab-is-4:checked').length > 0;
+    let isRadio5Checked = $('.ms-radio-button-tab-is-5:checked').length > 0;
+
+    let totalCostCateringStaff = 0;
+
+    if (!isRadio4Checked && !isRadio5Checked) {
+        totalCostCateringStaff = numberOfCateringStaff * costPerCateringStaff;
     }
-
-    // Set the value for '#staff-traiteur'
-    if (isTraiteurWrapperHidden || isRadio4Or5Checked) {
-        $('#staff-traiteur').val(0);
-    }
-
-    // Calculate the total price
-    const totalPrice = sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3 + totalStaffCostWithoutTVA;
-
-    // Update the '.total-price' element
-    $('.total-price').text(totalPrice.toFixed(2));
 
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
+    const numberOfSecurityStaff = Number($('#nombre-securite').text());
 
     const costPerRegisseur = 40;
     const costPerSecurityStaff = 35;
 
     const totalCostRegisseur = numberOfRegisseurs * costPerRegisseur;
-  
+    const totalCostSecurityStaff = numberOfSecurityStaff * costPerSecurityStaff;
+
+    const totalStaffCostWithoutTVA = totalCostRegisseur + totalCostCateringStaff + totalCostSecurityStaff;
+
     $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
 
     const tvaRate = 0.2;
