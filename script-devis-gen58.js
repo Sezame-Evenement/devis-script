@@ -81,6 +81,27 @@ function updateTeamMembers() {
 }
 
 
+
+function updateSecurityStaff(eventTimeString, numberOfAttendees) {
+    if (isEventAfter22h00(eventTimeString)) {
+        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+        $('#nombre-securite').text(securityTeamMembers).show();
+        $('.wrapper-security').show();
+    } else {
+        $('#nombre-securite').text(0).hide();
+        $('.wrapper-security').hide();
+    }
+}
+
+$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+    if (isRadio4Or5) {
+        $('#nombre-equipier-traiteur').text('0');
+    } else {
+        updateTeamMembers(); 
+    }
+    resetPricingCalculator();
+});
 function isEventAfter22h00(eventTimeString) {
     const endTimeString = eventTimeString.split('au')[1].trim();
     const timePart = endTimeString.split('à')[1].trim();
@@ -228,17 +249,6 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     updateTeamMembers();
     resetPricingCalculator();
 });
-
-function updateSecurityStaff(eventTimeString, numberOfAttendees) {
-    if (isEventAfter22h00(eventTimeString)) {
-        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-        $('#nombre-securite').text(securityTeamMembers).show();
-        $('.wrapper-security').show();
-    } else {
-        $('#nombre-securite').text(0).hide();
-        $('.wrapper-security').hide();
-    }
-}
 
 function resetPricingCalculator() {
     $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').prop('checked', false);
