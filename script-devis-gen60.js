@@ -1,5 +1,17 @@
 $(document).ready(function() {
     console.log('Script is running');
+    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+        let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+        if (isRadio4Or5) {
+            $('#nombre-equipier-traiteur, #nombre-securite').text('0'); // Reset both to 0
+            // Add logic to hide or reset other related UI elements if necessary
+            console.log("Catering and security staff logic disabled for radio 4 or 5");
+        } else {
+            // Re-enable logic for other radio buttons if needed
+            updateTeamMembers(); // Make sure to call this to update based on current attendee number
+        }
+    });
+
     $('.ms-radio-button-tab-is-1').prop('checked', true);
     initialPriceTraiteurPerso = 120;
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
@@ -56,20 +68,26 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 function updateTeamMembers() {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
 
+    if (isRadio4Or5Checked) {
+        $('#nombre-equipier-traiteur').text('0');
+        return; 
+    }
+
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
-        return;
+        return; r
     }
 
-    if (!isRadio4Or5Checked) {
-        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-        $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    }
+    const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+    $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+
+  
     const eventTimeString = $('.data-text-item').text();
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
+
 
 
 
