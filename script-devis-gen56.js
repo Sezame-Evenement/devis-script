@@ -54,10 +54,10 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function updateTeamMembers() {
-    const isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
         return;
@@ -67,8 +67,8 @@ function updateTeamMembers() {
         const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
         $('#nombre-equipier-traiteur').text(cateringTeamMembers);
     }
-
-
+    const eventTimeString = $('.data-text-item').text();
+    updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
 
 
