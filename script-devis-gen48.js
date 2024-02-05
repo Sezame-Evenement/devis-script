@@ -286,28 +286,3 @@ $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-deje
     updatePricesAndTotal();
 });
 
-Webflow.push(function() {
-    var observerConfig = { subtree: true, childList: true };
-    var observer = new MutationObserver(function() {
-        updatePriceField('.price-specialite', '#specialite-traiteur-prix');
-        updatePriceField('.price-petitdejeuner', '#petit-dejeuner-prix');
-        updatePriceField('.price-dejeuner', '#dejeuner-prix');
-        updatePriceField('.price-pause', '#pause-apres-midi-prix');
-        updatePriceField('.price-diner', '#diner-prix');
-        updatePriceField('.price-traiteur-perso', '#cout-formule-traiteur-prix');
-        updatePriceField('.price-tva', '#tva-prix');
-        updatePriceField('.total-ht', '#prix-ht');
-        updatePriceField('.total-ttc', '#prix-ttc');
-        updatePriceField('.nombre-equipier-traiteur', '#staff-traiteur');
-        updatePriceField('.nombre-securite', '#staff-securite');
-        updatePriceField('.price-staff', '#prix-staff-total');
-      
-
-    });
-    observer.observe(document.body, observerConfig);
-});
-
-function updatePriceField(sourceSelector, targetSelector) {
-    var priceText = $(sourceSelector).text();
-    $(targetSelector).val(priceText);
-}
