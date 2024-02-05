@@ -1,14 +1,10 @@
 $(document).ready(function() {
-    // Initial setup
     console.log('Script is running');
     $('.ms-radio-button-tab-is-1').prop('checked', true);
     initialPriceTraiteurPerso = 120;
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
     updatePricesAndTotal();
     $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
-
-    const eventTimeString = $('.data-text-item').text();
-    updateSecurityStaff(eventTimeString, parseInt($('#nb-personnes-final-2').val(), 10));
 });
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
@@ -59,23 +55,18 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 
 function updateTeamMembers() {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
         return;
     }
 
-    // Catering staff logic disabled for radio 4 and 5
     if (!isRadio4Or5Checked) {
         const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
         $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    } else {
-        $('#nombre-equipier-traiteur').text('0'); // Ensure staff-traiteur is 0 for radio 4 and 5
     }
-
-    // Security staff logic should always work
     const eventTimeString = $('.data-text-item').text();
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
@@ -240,13 +231,14 @@ function updateSumDisplay(targetClass, sum) {
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
-        $('#nombre-equipier-traiteur').text('0'); // Disable catering staff logic
-        $('.wrapper-equipier-traiteur').hide(); // Optionally hide the catering staff section
+        costPerCateringStaff = 0;
+        $('.wrapper-equipier-traiteur').hide();
+        $('#nombre-equipier-traiteur').text('0');
+        console.log("ms-radio-button-tab-is-4 or ms-radio-button-tab-is-5 selected: Catering and Security staff set to 0");
     } else {
-        $('.wrapper-equipier-traiteur').show(); // Show the catering staff section if hidden
+        costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
+        $('.wrapper-equipier-traiteur').show();
     }
-    // Recalculate both security and catering staff as necessary
-    updateTeamMembers();
     resetPricingCalculator();
 });
 
@@ -318,4 +310,3 @@ $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
     updatePricesAndTotal();
 });
-
