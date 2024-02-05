@@ -65,27 +65,21 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 
 function updateTeamMembers() {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-
     if (isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0');
-        return; 
+        return;
     }
-
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
-        return; r
+        return;
     }
-
     const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
     $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-
-  
     const eventTimeString = $('.data-text-item').text();
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
-
 
 
 
@@ -122,11 +116,11 @@ function isEventAfter22h00(eventTimeString) {
 
 const updatePricesAndTotal = () => {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    if(isRadio4Or5Checked) {
+    if (isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0'); 
-             console.log("Updating prices: Catering and Security staff set to 0 due to radio 4 or 5 selection"); 
     }
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
+    
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
     let sumSpecialite3 = 0;
@@ -169,61 +163,31 @@ const updatePricesAndTotal = () => {
     sumDiner2 = calculateCategorySum('checkbox-devis-diner-2', numberOfPersonsDiner2);
     sumDiner3 = calculateCategorySum('checkbox-devis-diner-3', numberOfPersonsDiner3);
 
-    let isRadio4Checked = $('.ms-radio-button-tab-is-4:checked').length > 0;
-    let isRadio5Checked = $('.ms-radio-button-tab-is-5:checked').length > 0;
+    let totalCostCateringStaff = isRadio4Or5Checked ? 0 : numberOfCateringStaff * costPerCateringStaff;
 
-    let totalCostCateringStaff = 0;
-
-    if (!isRadio4Checked && !isRadio5Checked) {
-        totalCostCateringStaff = numberOfCateringStaff * costPerCateringStaff;
-    }
-
-    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
-
-    const costPerRegisseur = 40;
-    const costPerSecurityStaff = 35;
-
-    const totalCostRegisseur = numberOfRegisseurs * costPerRegisseur;
     const totalCostSecurityStaff = numberOfSecurityStaff * costPerSecurityStaff;
 
-    const totalStaffCostWithoutTVA = totalCostRegisseur + totalCostCateringStaff + totalCostSecurityStaff;
+    let totalStaffCostWithoutTVA = totalCostCateringStaff + totalCostSecurityStaff;
 
-    $('#total-staff').text(totalStaffCostWithoutTVA.toFixed(2).replace('.', ','));
+    let totalSum = sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3;
+    let priceSalleValue = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
+    let priceTraiteurPersoValue = Number($('.price-traiteur-perso').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
+
+    totalSum += priceSalleValue + priceTraiteurPersoValue + totalStaffCostWithoutTVA;
 
     const tvaRate = 0.2;
-    const tvaRegisseur = totalCostRegisseur * tvaRate;
-    const tvaCateringStaff = totalCostCateringStaff * tvaRate;
-    const tvaSecurityStaff = totalCostSecurityStaff * tvaRate;
+    let generalTVA = (priceSalleValue + priceTraiteurPersoValue + totalCostCateringStaff) * tvaRate;
+    let specialTVAValue = (sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3) * 0.1;
+    let totalTVA = generalTVA + specialTVAValue + totalCostSecurityStaff * tvaRate;
 
-    const specialTVAValue = (sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3) * 0.1;
+    let totalHT = totalSum;
+    let totalTTC = totalHT + totalTVA;
 
-    updateSumDisplay('price-specialite', sumSpecialite1 + sumSpecialite2 + sumSpecialite3);
-    updateSumDisplay('price-petitdejeuner', sumPetitdejeuner1 + sumPetitdejeuner2);
-    updateSumDisplay('price-dejeuner', sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4);
-    updateSumDisplay('price-pause', sumPause);
-    updateSumDisplay('price-diner', sumDiner1 + sumDiner2 + sumDiner3);
-
-    const priceSalleValue = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
-    const priceTraiteurPersoValue = Number($('.price-traiteur-perso').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
-
-    const totalSum = sumSpecialite1 + sumSpecialite2 + sumSpecialite3 + sumPetitdejeuner1 + sumPetitdejeuner2 + sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4 + sumPause + sumDiner1 + sumDiner2 + sumDiner3 + priceSalleValue + priceTraiteurPersoValue + totalStaffCostWithoutTVA;
-
-    const generalTVA = (priceSalleValue + priceTraiteurPersoValue) * 0.2;
-    const totalTVA = generalTVA + specialTVAValue + tvaRegisseur + tvaCateringStaff + tvaSecurityStaff;
-
-    const totalHT = totalSum;
-    const totalTTC = totalSum + totalTVA;
-
-    const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
-    const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
-    const formattedTVA = totalTVA.toFixed(2).replace('.', ',');
-
-    $('.total-ht').text(formattedTotalHT);
-    $('.total-ttc').text(formattedTotalTTC);
-    $('.price-tva').text(formattedTVA);
-
-    $('.hack42-send-value').val(formattedTotalHT);
+    $('.total-ht').text(totalHT.toFixed(2).replace('.', ','));
+    $('.total-ttc').text(totalTTC.toFixed(2).replace('.', ','));
+    $('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
+    $('.hack42-send-value').val(totalHT.toFixed(2).replace('.', ','));
 };
 
 function calculateCategorySum(className, numberOfPersons) {
