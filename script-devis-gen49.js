@@ -91,6 +91,11 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 const updatePricesAndTotal = () => {
+    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    if(isRadio4Or5Checked) {
+        $('#nombre-equipier-traiteur').text('0'); // Ensure catering staff is set to 0 in calculations
+        $('#nombre-securite').text('0'); // Ensure security staff is set to 0 in calculations
+        console.log("Updating prices: Catering and Security staff set to 0 due to radio 4 or 5 selection"); // Console log for debugging
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
@@ -214,6 +219,9 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     if ($(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5')) {
         costPerCateringStaff = 0;
         $('.wrapper-equipier-traiteur').hide();
+        $('#nombre-equipier-traiteur').text('0');
+        $('#nombre-securite').text('0').hide(); 
+        console.log("ms-radio-button-tab-is-4 or ms-radio-button-tab-is-5 selected: Catering and Security staff set to 0");
     } else {
         costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
         $('.wrapper-equipier-traiteur').show();
@@ -228,6 +236,11 @@ function resetPricingCalculator() {
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
     $('.total-ht, .total-ttc, .price-tva').text(initialPriceSalle);
     $('.hack42-send-value').val(initialPriceSalle);
+    if ($('.ms-radio-button-tab-is-4').prop('checked') || $('.ms-radio-button-tab-is-5').prop('checked')) {
+        $('#nombre-equipier-traiteur').text('0');
+        $('#nombre-securite').text('0'); 
+        console.log("Resetting pricing calculator: Catering and Security staff maintained at 0 for radio 4 or 5"); 
+    }
     updatePricesAndTotal();
 }
 
