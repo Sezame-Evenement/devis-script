@@ -95,7 +95,8 @@ const updatePricesAndTotal = () => {
     if(isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0'); // Ensure catering staff is set to 0 in calculations
         $('#nombre-securite').text('0'); // Ensure security staff is set to 0 in calculations
-        console.log("Updating prices: Catering and Security staff set to 0 due to radio 4 or 5 selection"); // Console log for debugging
+        console.log("Updating prices: Catering and Security staff set to 0 due to radio 4 or 5 selection"); 
+    }
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
