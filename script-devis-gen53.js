@@ -54,7 +54,6 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function updateTeamMembers() {
-    // Check if radio 4 or 5 is selected
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
 
     const rawCateringValue = $('#nb-personnes-final-2').val();
@@ -71,6 +70,8 @@ function updateTeamMembers() {
     const eventTimeString = $('.data-text-item').text();
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
+
+
 
 function updateSecurityStaff(eventTimeString, numberOfAttendees) {
     if (isEventAfter22h00(eventTimeString)) {
