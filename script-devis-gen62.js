@@ -3,10 +3,12 @@ $(document).ready(function() {
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
         let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
         if (isRadio4Or5) {
-            $('#nombre-equipier-traiteur').text('0'); 
+            $('#nombre-equipier-traiteur, #nombre-securite').text('0'); // Reset both to 0
+            // Add logic to hide or reset other related UI elements if necessary
             console.log("Catering and security staff logic disabled for radio 4 or 5");
         } else {
-            updateTeamMembers(); 
+            // Re-enable logic for other radio buttons if needed
+            updateTeamMembers(); // Make sure to call this to update based on current attendee number
         }
     });
 
@@ -101,14 +103,32 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 }
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
-    if (isRadio4Or5) {
-        $('#nombre-equipier-traiteur').text('0');
+    let isRadio4Or5Checked = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+
+    if (isRadio4Or5Checked) {
+        $('#nombre-equipier-traiteur').text('0'); 
+        $('.wrapper-equipier-traiteur').hide(); 
     } else {
-        updateTeamMembers(); 
+        $('.wrapper-equipier-traiteur').show(); 
     }
+    
     resetPricingCalculator();
+
+    if (!isRadio4Or5Checked) {
+        updateTeamMembers();
+    }
+
+    const eventTimeString = $('.data-text-item').text();
+    const numberOfAttendees = parseInt($('#nb-personnes-final-2').val(), 10);
+    if (!isNaN(numberOfAttendees)) {
+        if (isRadio4Or5Checked) {
+            updateSecurityStaff(eventTimeString, numberOfAttendees);
+        } else {
+            updateSecurityStaff(eventTimeString, numberOfAttendees);
+        }
+    }
 });
+
 function isEventAfter22h00(eventTimeString) {
     const endTimeString = eventTimeString.split('au')[1].trim();
     const timePart = endTimeString.split('à')[1].trim();
