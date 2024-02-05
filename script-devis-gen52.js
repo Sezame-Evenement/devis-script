@@ -54,31 +54,44 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function updateTeamMembers() {
+    // Check if radio 4 or 5 is selected
+    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-    const eventTimeString = $('.data-text-item').text();
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
         return;
     }
-    const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-$('#nombre-equipier-traiteur').text(cateringTeamMembers);
-if (isEventAfter22h00(eventTimeString)) {
-    const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-    $('#nombre-securite').text(securityTeamMembers).show();
-    $('.wrapper-security').show();
-} else {
-    $('#nombre-securite').text(0).hide();
-    $('.wrapper-security').hide();
-    $('#staff-securite').val(0); 
-}
-if (!$('.ms-radio-button-tab-is-4').prop('checked') && !$('.ms-radio-button-tab-is-5').prop('checked')) {
-    if (typeof updatePricesAndTotal === "function") {
-        updatePricesAndTotal();
+
+    if (!isRadio4Or5Checked) {
+        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        $('#nombre-equipier-traiteur').text(cateringTeamMembers);
     }
-}
+    const eventTimeString = $('.data-text-item').text();
+    updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
 
+function updateSecurityStaff(eventTimeString, numberOfAttendees) {
+    if (isEventAfter22h00(eventTimeString)) {
+        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+        $('#nombre-securite').text(securityTeamMembers).show();
+        $('.wrapper-security').show();
+    } else {
+        $('#nombre-securite').text(0).hide();
+        $('.wrapper-security').hide();
+    }
+}
+
+$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+    if (isRadio4Or5) {
+        $('#nombre-equipier-traiteur').text('0');
+    } else {
+        updateTeamMembers(); 
+    }
+    resetPricingCalculator();
+});
 function isEventAfter22h00(eventTimeString) {
     const endTimeString = eventTimeString.split('au')[1].trim();
     const timePart = endTimeString.split('à')[1].trim();
