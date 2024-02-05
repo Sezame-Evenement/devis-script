@@ -3,12 +3,10 @@ $(document).ready(function() {
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
         let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
         if (isRadio4Or5) {
-            $('#nombre-equipier-traiteur, #nombre-securite').text('0'); // Reset both to 0
-            // Add logic to hide or reset other related UI elements if necessary
+            $('#nombre-equipier-traiteur').text('0'); 
             console.log("Catering and security staff logic disabled for radio 4 or 5");
         } else {
-            // Re-enable logic for other radio buttons if needed
-            updateTeamMembers(); // Make sure to call this to update based on current attendee number
+            updateTeamMembers(); 
         }
     });
 
