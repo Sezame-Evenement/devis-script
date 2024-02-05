@@ -54,24 +54,21 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function updateTeamMembers() {
-    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-
-    if (isRadio4Or5Checked) {
-        console.log("Radio 4 or 5 selected: Skipping update of staff-traiteur");
-        return;
-    }
-
+    const isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
+
     if (isNaN(numberOfAttendees)) {
         console.log('Invalid input for number of attendees');
         return;
     }
 
-    const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    const eventTimeString = $('.data-text-item').text();
-    updateSecurityStaff(eventTimeString, numberOfAttendees);
+    if (!isRadio4Or5Checked) {
+        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+    }
+
+
 }
 
 
