@@ -68,20 +68,23 @@ function updateTeamMembers() {
 
     if (isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0');
-        return; 
+        return;
     }
 
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
-    if (isNaN(numberOfAttendees)) {
+    if (!isNaN(numberOfAttendees)) {
+        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        if ($('.wrapper-equipier-traiteur').is(':visible')) {
+            $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+        } else {
+            $('#nombre-equipier-traiteur').text('0');
+        }
+    } else {
         console.log('Invalid input for number of attendees');
-        return; r
+        $('#nombre-equipier-traiteur').text('0');
     }
 
-    const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-
-  
     const eventTimeString = $('.data-text-item').text();
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
@@ -89,14 +92,17 @@ function updateTeamMembers() {
 
 
 
+
 function updateSecurityStaff(eventTimeString, numberOfAttendees) {
-    if (isEventAfter22h00(eventTimeString)) {
-        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-        $('#nombre-securite').text(securityTeamMembers).show();
-        $('.wrapper-security').show();
+    if ($('.wrapper-security').is(':visible')) {
+        if (isEventAfter22h00(eventTimeString)) {
+            const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+            $('#nombre-securite').text(securityTeamMembers);
+        } else {
+            $('#nombre-securite').text(0);
+        }
     } else {
-        $('#nombre-securite').text(0).hide();
-        $('.wrapper-security').hide();
+        $('#nombre-securite').text(0);
     }
 }
 
