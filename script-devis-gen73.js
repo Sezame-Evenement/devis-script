@@ -1,36 +1,41 @@
 function isEventAfter22h00(eventTimeString) {
     const parts = eventTimeString.split(' au ');
     const endTimeString = parts.length > 1 ? parts[1] : '';
-    const timePart = endTimeString.split('à')[1].trim();
+    const timePart = endTimeString.split('à')[1].trim(); 
     const [hours, minutes] = timePart.split('h').map(Number);
+    
     return hours >= 22 || hours < 6;
 }
 
 $(document).ready(function() {
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-        updateTeamMembers();
-        updatePricesAndTotal();
     });
 
     initialPriceTraiteurPerso = 120;
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
     $('.ms-radio-button-tab-is-1').prop('checked', true).trigger('click');
 
-    const eventTimeString = $('#data-text-item-check').text(); 
-    updateSecurityStaffBasedOnEventTime(eventTimeString);
-    updateTeamMembers();
-    updatePricesAndTotal();
-
     $('#nb-personnes-final-2').on('input', function() {
         updateTeamMembers();
         updatePricesAndTotal();
     });
+
+    const eventTimeString = $('#data-text-item-check').text(); 
+    updateSecurityStaffBasedOnEventTime(eventTimeString);
+    updateTeamMembers();
+    updatePricesAndTotal();
 });
 
-function getInitialNumberOfAttendees() {
-    const rawValue = $('#nb-personnes-final-2').val();
-    return parseInt(rawValue, 10) || 0;
+function updateSecurityStaffBasedOnEventTime(eventTimeString) {
+    if (isEventAfter22h00(eventTimeString)) {
+        $('.wrapper-security').show();
+    } else {
+        $('.wrapper-security').hide();
+        $('#nombre-securite').text('0');
+    }
 }
+
+
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 let initialPriceTraiteurPerso = 0;
@@ -64,7 +69,7 @@ function getNumberOfCateringTeamMembers(numberOfAttendees) {
     return cateringTeamSize ? cateringTeamSize.team : "Error";
 }
 
-function getNumberOfSecurityMembers(numberOfAttendees) {
+function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees) {
     const securityBrackets = [
         { min: 0, max: 99, team: 1 },
         { min: 100, max: 149, team: 2 },
@@ -80,50 +85,59 @@ function getNumberOfSecurityMembers(numberOfAttendees) {
 
 function updateTeamMembers() {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+
     if (isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0');
         return;
     }
-    const numberOfAttendees = getInitialNumberOfAttendees();
-    const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-    $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-    const eventTimeString = $('#data-text-item-check').text();
-    updateSecurityStaffBasedOnEventTime(eventTimeString);
+
+    const rawCateringValue = $('#nb-personnes-final-2').val();
+    const numberOfAttendees = parseInt(rawCateringValue, 10);
+    if (!isNaN(numberOfAttendees)) {
+        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        if ($('.wrapper-equipier-traiteur').is(':visible')) {
+            $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+        } else {
+            $('#nombre-equipier-traiteur').text('0');
+        }
+    } else {
+        console.log('Invalid input for number of attendees');
+        $('#nombre-equipier-traiteur').text('0');
+    }
+
+    const eventTimeString = $('.data-text-item').text();
+    updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
 
-
-function updateSecurityStaffBasedOnEventTime(eventTimeString) {
-    if (isEventAfter22h00(eventTimeString)) {
-        $('.wrapper-security').show();
+function updateSecurityStaff(eventTimeString, numberOfAttendees) {
+    if ($('.wrapper-security').is(':visible')) {
+        if (isEventAfter22h00(eventTimeString)) {
+            const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+            $('#nombre-securite').text(securityTeamMembers);
+        } else {
+            $('#nombre-securite').text(0);
+        }
     } else {
-        $('.wrapper-security').hide();
-        $('#nombre-securite').text('0');
+        $('#nombre-securite').text(0);
     }
 }
 
-function resetPricingCalculator() {
-    $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').prop('checked', false);
-    $('.price-specialite, .price-petitdejeuner, .price-dejeuner, .price-pause, .price-diner').text('0.00');
-    $('.price-salle').text(initialPriceSalle);
-    $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
-    $('.total-ht, .total-ttc, .price-tva').text(initialPriceSalle);
-    
-    if ($('.ms-radio-button-tab-is-4').prop('checked') || $('.ms-radio-button-tab-is-5').prop('checked')) {
-        costPerCateringStaff = 0;
-        $('.wrapper-equipier-traiteur').hide();
+$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+    if (isRadio4Or5) {
         $('#nombre-equipier-traiteur').text('0');
     } else {
-        costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
-        $('.wrapper-equipier-traiteur').show();
+        updateTeamMembers(); 
     }
-    
-    updatePricesAndTotal();
-}
+    resetPricingCalculator();
+});
+
 
 const updatePricesAndTotal = () => {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
     if(isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0'); 
+             console.log("Updating prices: Catering and Security staff set to 0 due to radio 4 or 5 selection"); 
     }
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
