@@ -1,54 +1,48 @@
 function isEventAfter22h00(eventTimeString) {
+    // Splitting the string to extract the end time part
     const parts = eventTimeString.split(' au ');
     const endTimeString = parts.length > 1 ? parts[1] : '';
-    const timePartMatch = endTimeString.match(/(\d+)h(\d+)/);
-    return timePartMatch && (parseInt(timePartMatch[1], 10) >= 22 || parseInt(timePartMatch[1], 10) < 6);
-}
-
-function getInitialNumberOfAttendees() {
-    const rawValue = $('#nb-personnes-final-2').val();
-    return parseInt(rawValue, 10) || 0;
+    const timePart = endTimeString.split('à')[1].trim(); // Extracting the time part after 'à'
+    const [hours, minutes] = timePart.split('h').map(Number);
+    
+    // Checking if the time is between 22:00 and 6:00
+    return hours >= 22 || hours < 6;
 }
 
 $(document).ready(function() {
+    // Initialization logic remains mostly the same
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-        handleRadioButtonSelection();
+        // Radio button logic as previously defined
     });
 
-    handleRadioButtonSelection(); // Initial setup based on the default selected radio button
+    initialPriceTraiteurPerso = 120;
+    $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
+    $('.ms-radio-button-tab-is-1').prop('checked', true).trigger('click');
+
     $('#nb-personnes-final-2').on('input', function() {
         updateTeamMembers();
         updatePricesAndTotal();
     });
+
+    // Fetch the event time string correctly from the specified field
+    const eventTimeString = $('#data-text-item-check').text(); // Adjusted to use the correct field ID
+    updateSecurityStaffBasedOnEventTime(eventTimeString);
+    updateTeamMembers();
+    updatePricesAndTotal();
 });
 
-function handleRadioButtonSelection() {
-    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    if (isRadio4Or5Checked) {
-        $('#nombre-equipier-traiteur').text('0');
-        $('.wrapper-equipier-traiteur').hide();
+function updateSecurityStaffBasedOnEventTime(eventTimeString) {
+    // Use the corrected isEventAfter22h00 function to determine visibility and staffing
+    if (isEventAfter22h00(eventTimeString)) {
+        // Show security staff and update numbers as necessary
+        $('.wrapper-security').show();
+        // Logic to set the number of security members based on attendees
     } else {
-        $('.wrapper-equipier-traiteur').show();
-    }
-    updateTeamMembers(); // Ensure team members are updated based on the current selection
-    updateSecurityStaffBasedOnEventTime($('#data-text-item-check').text(), getInitialNumberOfAttendees());
-    resetPricingCalculator();
-}
-
-function updateTeamMembers() {
-    let numberOfAttendees = getInitialNumberOfAttendees();
-    if (!$('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0) {
-        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-        $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+        // Hide security and set count to 0 if event does not end between 22:00 and 6:00
+        $('.wrapper-security').hide();
+        $('#nombre-securite').text('0');
     }
 }
-
-function updateSecurityStaffBasedOnEventTime(eventTimeString, numberOfAttendees) {
-    $('.wrapper-security').toggle(isEventAfter22h00(eventTimeString));
-    const securityTeamMembers = isEventAfter22h00(eventTimeString) ? getNumberOfSecurityMembers(numberOfAttendees) : 0;
-    $('#nombre-securite').text(securityTeamMembers);
-}
-
 
 
 
@@ -98,6 +92,48 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
     return securityTeamSize ? securityTeamSize.team : "Error";
 }
 
+function updateTeamMembers() {
+    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+
+    if (isRadio4Or5Checked) {
+        $('#nombre-equipier-traiteur').text('0');
+        return;
+    }
+
+    const rawCateringValue = $('#nb-personnes-final-2').val();
+    const numberOfAttendees = parseInt(rawCateringValue, 10);
+    if (!isNaN(numberOfAttendees)) {
+        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        if ($('.wrapper-equipier-traiteur').is(':visible')) {
+            $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+        } else {
+            $('#nombre-equipier-traiteur').text('0');
+        }
+    } else {
+        console.log('Invalid input for number of attendees');
+        $('#nombre-equipier-traiteur').text('0');
+    }
+
+    const eventTimeString = $('.data-text-item').text();
+    updateSecurityStaff(eventTimeString, numberOfAttendees);
+}
+
+
+
+
+
+function updateSecurityStaff(eventTimeString, numberOfAttendees) {
+    if ($('.wrapper-security').is(':visible')) {
+        if (isEventAfter22h00(eventTimeString)) {
+            const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+            $('#nombre-securite').text(securityTeamMembers);
+        } else {
+            $('#nombre-securite').text(0);
+        }
+    } else {
+        $('#nombre-securite').text(0);
+    }
+}
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
