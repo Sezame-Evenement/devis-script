@@ -109,18 +109,7 @@ function updateTeamMembers() {
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
 
-function updateSecurityStaff(eventTimeString, numberOfAttendees) {
-    if ($('.wrapper-security').is(':visible')) {
-        if (isEventAfter22h00(eventTimeString)) {
-            const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-            $('#nombre-securite').text(securityTeamMembers);
-        } else {
-            $('#nombre-securite').text(0);
-        }
-    } else {
-        $('#nombre-securite').text(0);
-    }
-}
+
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
