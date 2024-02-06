@@ -10,11 +10,24 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 $(document).ready(function() {
+    const initialAttendees = $('#nb-personnes-final-2').attr('data');
+    $('#nb-personnes-final-2').val(initialAttendees);
     console.log("Document ready");
 
     initialPriceTraiteurPerso = 120;
     console.log(`Initial Price Traiteur Perso: ${initialPriceTraiteurPerso}`);
-    
+
+    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+        console.log(`Radio button clicked: ${$(this).attr('class')}`);
+        let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+        if (isRadio4Or5) {
+            $('#nombre-equipier-traiteur').text('0');
+        } else {
+            updateTeamMembers(); 
+        }
+        resetPricingCalculator();
+    });
+
     $('#nb-personnes-final-2').on('input', function() {
         console.log("Number of attendees changed");
         updateTeamMembers();
