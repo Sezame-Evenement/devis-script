@@ -1,21 +1,39 @@
+function isEventAfter22h00(eventTimeString) {
+    const parts = eventTimeString.split(' au ');
+    const endTimeString = parts.length > 1 ? parts[1] : '';
+    const timePart = endTimeString.split('à')[1].trim();
+    const [hours, minutes] = timePart.split('h').map(Number);
+    
+    return hours >= 22 || hours < 6;
+}
+
 $(document).ready(function() {
-    console.log('Script is running');
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-        let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
-        if (isRadio4Or5) {
-            $('#nombre-equipier-traiteur').text('0'); 
-            console.log("Catering and security staff logic disabled for radio 4 or 5");
-        } else {
-            updateTeamMembers(); 
-        }
     });
 
-    $('.ms-radio-button-tab-is-1').prop('checked', true);
     initialPriceTraiteurPerso = 120;
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
+    $('.ms-radio-button-tab-is-1').prop('checked', true).trigger('click');
+
+    $('#nb-personnes-final-2').on('input', function() {
+        updateTeamMembers();
+        updatePricesAndTotal();
+    });
+
+    const eventTimeString = $('#data-text-item-check').text(); 
+    updateSecurityStaffBasedOnEventTime(eventTimeString);
+    updateTeamMembers();
     updatePricesAndTotal();
-    $(document).on('input', '#nb-personnes-final-2', updateTeamMembers);
 });
+
+function updateSecurityStaffBasedOnEventTime(eventTimeString) {
+    if (isEventAfter22h00(eventTimeString)) {
+        $('.wrapper-security').show();
+    } else {
+        $('.wrapper-security').hide();
+        $('#nombre-securite').text('0');
+    }
+}
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 let initialPriceTraiteurPerso = 0;
@@ -115,16 +133,7 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     }
     resetPricingCalculator();
 });
-function isEventAfter22h00(eventTimeString) {
-    const endTimeString = eventTimeString.split('au')[1].trim();
-    const timePart = endTimeString.split('à')[1].trim();
-    const hoursMinutes = timePart.split('h');
-    
-    const hours = parseInt(hoursMinutes[0], 10);
-    const minutes = parseInt(hoursMinutes[1], 10) || 0;
-    
-    return (hours >= 22 || hours < 6);
-}
+
 
 const updatePricesAndTotal = () => {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
