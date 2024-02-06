@@ -2,60 +2,51 @@ function isEventAfter22h00(eventTimeString) {
     const parts = eventTimeString.split(' au ');
     const endTimeString = parts.length > 1 ? parts[1] : '';
     const timePartMatch = endTimeString.match(/(\d+)h(\d+)/);
-    if (timePartMatch && timePartMatch.length >= 3) {
-        const hours = parseInt(timePartMatch[1], 10);
-        const minutes = parseInt(timePartMatch[2], 10);
-        return hours >= 22 || hours < 6;
-    }
-    return false;
+    return timePartMatch && (parseInt(timePartMatch[1], 10) >= 22 || parseInt(timePartMatch[1], 10) < 6);
 }
 
 function getInitialNumberOfAttendees() {
     const rawValue = $('#nb-personnes-final-2').val();
-    const numberOfAttendees = parseInt(rawValue, 10);
-    return !isNaN(numberOfAttendees) ? numberOfAttendees : 0;
+    return parseInt(rawValue, 10) || 0;
 }
 
 $(document).ready(function() {
-    const eventTimeString = $('#data-text-item-check').text();
-    updateSecurityStaffBasedOnEventTime(eventTimeString, getInitialNumberOfAttendees());
+    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+        handleRadioButtonSelection();
+    });
+
+    handleRadioButtonSelection(); // Initial setup based on the default selected radio button
     $('#nb-personnes-final-2').on('input', function() {
         updateTeamMembers();
         updatePricesAndTotal();
     });
-    updateTeamMembers();
-    updatePricesAndTotal();
 });
 
-function updateSecurityStaffBasedOnEventTime(eventTimeString, numberOfAttendees) {
-    if (isEventAfter22h00(eventTimeString)) {
-        $('.wrapper-security').show();
-        const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-        $('#nombre-securite').text(securityTeamMembers);
-    } else {
-        $('.wrapper-security').hide();
-        $('#nombre-securite').text('0');
-    }
-}
-
-function updateTeamMembers() {
+function handleRadioButtonSelection() {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-
     if (isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0');
         $('.wrapper-equipier-traiteur').hide();
     } else {
-        const rawCateringValue = $('#nb-personnes-final-2').val();
-        const numberOfAttendees = parseInt(rawCateringValue, 10) || 0;
         $('.wrapper-equipier-traiteur').show();
-        if (!isNaN(numberOfAttendees)) {
-            const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
-            $('#nombre-equipier-traiteur').text(cateringTeamMembers);
-        } else {
-            console.log('Invalid input for number of attendees');
-            $('#nombre-equipier-traiteur').text('0');
-        }
     }
+    updateTeamMembers(); // Ensure team members are updated based on the current selection
+    updateSecurityStaffBasedOnEventTime($('#data-text-item-check').text(), getInitialNumberOfAttendees());
+    resetPricingCalculator();
+}
+
+function updateTeamMembers() {
+    let numberOfAttendees = getInitialNumberOfAttendees();
+    if (!$('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0) {
+        const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        $('#nombre-equipier-traiteur').text(cateringTeamMembers);
+    }
+}
+
+function updateSecurityStaffBasedOnEventTime(eventTimeString, numberOfAttendees) {
+    $('.wrapper-security').toggle(isEventAfter22h00(eventTimeString));
+    const securityTeamMembers = isEventAfter22h00(eventTimeString) ? getNumberOfSecurityMembers(numberOfAttendees) : 0;
+    $('#nombre-securite').text(securityTeamMembers);
 }
 
 
