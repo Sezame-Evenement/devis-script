@@ -4,37 +4,41 @@ function isEventAfter22h00(eventTimeString) {
     const timePart = endTimeString.split('à')[1].trim(); 
     const [hours, minutes] = timePart.split('h').map(Number);
     
+    console.log(`isEventAfter22h00: Event ends at ${hours}h${minutes}`);
+    
     return hours >= 22 || hours < 6;
 }
 
 $(document).ready(function() {
-    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    });
+    console.log("Document ready");
 
     initialPriceTraiteurPerso = 120;
-    $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
-    $('.ms-radio-button-tab-is-1').prop('checked', true).trigger('click');
-
+    console.log(`Initial Price Traiteur Perso: ${initialPriceTraiteurPerso}`);
+    
     $('#nb-personnes-final-2').on('input', function() {
+        console.log("Number of attendees changed");
         updateTeamMembers();
         updatePricesAndTotal();
     });
 
-    const eventTimeString = $('#data-text-item-check').text(); 
+    const eventTimeString = $('#data-text-item-check').text();
+    console.log(`Event Time String: ${eventTimeString}`);
     updateSecurityStaffBasedOnEventTime(eventTimeString);
     updateTeamMembers();
     updatePricesAndTotal();
 });
 
 function updateSecurityStaffBasedOnEventTime(eventTimeString) {
+    console.log(`updateSecurityStaffBasedOnEventTime: ${eventTimeString}`);
     if (isEventAfter22h00(eventTimeString)) {
+        console.log("Event is after 22h00, showing security wrapper");
         $('.wrapper-security').show();
     } else {
+        console.log("Event is not after 22h00, hiding security wrapper");
         $('.wrapper-security').hide();
         $('#nombre-securite').text('0');
     }
 }
-
 
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
@@ -84,7 +88,11 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
 }
 
 function updateTeamMembers() {
+    console.log("updateTeamMembers called");
+
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    console.log(`Is Radio 4 or 5 Checked: ${isRadio4Or5Checked}`);
+
 
     if (isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0');
@@ -93,11 +101,17 @@ function updateTeamMembers() {
 
     const rawCateringValue = $('#nb-personnes-final-2').val();
     const numberOfAttendees = parseInt(rawCateringValue, 10);
+    console.log(`Number of Attendees: ${numberOfAttendees}`);
+
     if (!isNaN(numberOfAttendees)) {
         const cateringTeamMembers = getNumberOfCateringTeamMembers(numberOfAttendees);
+        console.log(`Catering Team Members: ${cateringTeamMembers}`);
+
         if ($('.wrapper-equipier-traiteur').is(':visible')) {
             $('#nombre-equipier-traiteur').text(cateringTeamMembers);
         } else {
+            console.log('Invalid input for number of attendees');
+
             $('#nombre-equipier-traiteur').text('0');
         }
     } else {
@@ -109,9 +123,27 @@ function updateTeamMembers() {
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
 
+function updateSecurityStaff(eventTimeString, numberOfAttendees) {
+    console.log(`updateSecurityStaff called with eventTimeString: ${eventTimeString}, numberOfAttendees: ${numberOfAttendees}`);
+
+    if ($('.wrapper-security').is(':visible')) {
+        if (isEventAfter22h00(eventTimeString)) {
+            const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+            $('#nombre-securite').text(securityTeamMembers);
+        } else {
+            $('#nombre-securite').text(0);
+        }
+    } else {
+        $('#nombre-securite').text(0);
+    }
+    
+}
+
 
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    console.log(`Radio button clicked: ${$(this).attr('class')}`);
+
     let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
     if (isRadio4Or5) {
         $('#nombre-equipier-traiteur').text('0');
@@ -123,6 +155,8 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 
 const updatePricesAndTotal = () => {
+    console.log("updatePricesAndTotal called");
+
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
     if(isRadio4Or5Checked) {
         $('#nombre-equipier-traiteur').text('0'); 
