@@ -133,7 +133,7 @@ function updateTeamMembers() {
         $('#nombre-equipier-traiteur').text('0');
     }
 
-    const eventTimeString = $('.data-text-item').text();
+    const eventTimeString = $('#data-text-item-check').text();
     updateSecurityStaff(eventTimeString, numberOfAttendees);
 }
 
