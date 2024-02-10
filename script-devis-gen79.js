@@ -16,6 +16,8 @@ $(document).ready(function() {
     console.log("Document ready");
 
     initialPriceTraiteurPerso = 120;
+    $('.price-traiteur-perso').text(initialPriceTraiteurPerso); // Set the initial UI element to 120
+
     console.log(`Initial Price Traiteur Perso: ${initialPriceTraiteurPerso}`);
 
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
