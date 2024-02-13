@@ -58,6 +58,8 @@ function updateSecurityStaffBasedOnEventTime(eventTimeString) {
 
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
+console.log(`Initial Price Salle converted to number: ${initialPriceSalle}`); // Log the conversion for clarity
+
 let initialPriceTraiteurPerso = 0;
 let YOUR_DEFAULT_CATERING_STAFF_COST = 35; 
 let costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
@@ -266,6 +268,8 @@ const updatePricesAndTotal = () => {
 
     const totalHT = totalSum;
     const totalTTC = totalSum + totalTVA;
+    console.log(`Total HT: ${totalHT}, Total TTC: ${totalTTC}, Total TVA: ${totalTVA}`); // Log the final totals for clarity
+
 
     const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
     const formattedTotalTTC = totalTTC.toFixed(2).replace('.', ',');
@@ -284,6 +288,8 @@ function calculateCategorySum(className, numberOfPersons) {
         const $checkbox = $(this);
         if ($checkbox.prop('checked')) {
             const addValue = Number($checkbox.attr('add-value').replace(',', '.'));
+            console.log(`Adding value for ${className}: ${addValue} * ${numberOfPersons}`); // Log calculation for each item
+
             if (!isNaN(addValue)) {
                 sum += addValue * numberOfPersons;
             }
