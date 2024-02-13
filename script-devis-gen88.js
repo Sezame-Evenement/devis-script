@@ -18,6 +18,9 @@ function parseEventTimes(eventTimeString) {
     const startDateTime = new Date(`${startDate} ${startTime}`);
     const endDateTime = new Date(`${endDate} ${endTime}`);
 
+    console.log(`Parsed Start DateTime: ${startDateTime}`);
+    console.log(`Parsed End DateTime: ${endDateTime}`);
+
     return { startDateTime, endDateTime };
 }
 
