@@ -11,21 +11,26 @@ function isEventAfter22h00(eventTimeString) {
 
 
 function parseEventTimes() {
-    const eventTimeString = $('#data-text-item-check').text(); // "20/02/2024 14:00 au 20/02/2024 17:00"
-    const [startDateString, endDateString] = eventTimeString.split(' au ');
-    const [startDate, startTime] = startDateString.split(' ');
-    const [endDate, endTime] = endDateString.split(' ');
-    
+    const eventTimeString = $('#data-text-item-check').text(); // e.g., "20/02/2024 14:00 au 20/02/2024 17:00"
+    const [startPart, endPart] = eventTimeString.split(' au ');
+    const [startDateString, startTimeString] = startPart.split(' ');
+    const [endDateString, endTimeString] = endPart.split(' ');
 
-    // Convert date and time to a JavaScript Date object
-    const startDateTime = new Date(`${startDate.split('/').reverse().join('-')}T${startTime}:00`);
-    const endDateTime = new Date(`${endDate.split('/').reverse().join('-')}T${endTime}:00`);
-    console.log("Event Start DateTime:", startDateTime);
-    console.log("Event End DateTime:", endDateTime);
+    // Convert DD/MM/YYYY to YYYY-MM-DD for compatibility
+    const startISODateString = startDateString.split('/').reverse().join('-');
+    const endISODateString = endDateString.split('/').reverse().join('-');
+
+    // Combine date and time parts into an ISO 8601 string format
+    const startDateTimeISO = `${startISODateString}T${startTimeString}:00`;
+    const endDateTimeISO = `${endISODateString}T${endTimeString}:00`;
+
+    // Create Date objects
+    const startDateTime = new Date(startDateTimeISO);
+    const endDateTime = new Date(endDateTimeISO);
 
     return { startDateTime, endDateTime };
-    
 }
+
 
 
 function calculateStaffCosts() {
