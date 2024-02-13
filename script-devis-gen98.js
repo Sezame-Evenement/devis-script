@@ -202,8 +202,12 @@ function updatePricesAndTotal() {
     const regisseurCost = Number($('#nombre-regisseur').text()) * 40 * regisseurPresence; // Assuming $40/hour
 
     // Update staff cost display
+    
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
+    $('#temps-staff-traiteur').text(`${numberOfCateringStaff} Traiteurs seront présents de ${startTime} jusqu'à ${endTime} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}/h soit ${cateringStaffCost.toFixed(2)}`);
+    $('#temps-staff-securite').text(`${numberOfSecurityStaff} Agents de sécurité seront présents de ${startTime} jusqu'à ${endTime} pour un montant de 35/h soit ${securityStaffCost.toFixed(2)}`);
+    $('#temps-regisseur').text(`${numberOfRegisseurs} Régisseurs seront présents de ${startTime} jusqu'à ${endTime} pour un montant de 40/h soit ${regisseurCost.toFixed(2)}`);
 
    
  // Item and meal cost calculations
