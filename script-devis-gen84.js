@@ -10,6 +10,75 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 
+function parseEventTimes() {
+    const eventTimeString = $('#data-text-item-check').text(); // "20/02/2024 14:00 au 20/02/2024 17:00"
+    const [startDateString, endDateString] = eventTimeString.split(' au ');
+    const [startDate, startTime] = startDateString.split(' ');
+    const [endDate, endTime] = endDateString.split(' ');
+
+    // Convert date and time to a JavaScript Date object
+    const startDateTime = new Date(`${startDate.split('/').reverse().join('-')}T${startTime}:00`);
+    const endDateTime = new Date(`${endDate.split('/').reverse().join('-')}T${endTime}:00`);
+
+    return { startDateTime, endDateTime };
+}
+
+
+function calculateStaffCosts() {
+    // Extract event times directly from the element
+    const eventTimeString = $('#data-text-item-check').text();
+    const parts = eventTimeString.split(' au ');
+    const startDateTimeString = parts[0];
+    const endDateTimeString = parts.length > 1 ? parts[1] : startDateTimeString; // Fallback to startDateTime if endDateTime is not available
+
+    // Convert to Date objects
+    const startDateTime = new Date(startDateTimeString.split(' ')[0].split('/').reverse().join('-') + 'T' + startDateTimeString.split(' ')[1] + ':00');
+    const endDateTime = new Date(endDateTimeString.split(' ')[0].split('/').reverse().join('-') + 'T' + endDateTimeString.split('à')[1].trim() + ':00');
+
+    // Other calculations remain the same...
+    const numberOfAttendees = parseInt($('#nb-personnes-final-2').val(), 10); // Get the number of attendees from the input
+
+    // Check if the event requires security
+    const eventRequiresSecurity = isEventAfter22h00(eventTimeString);
+
+    // Calculate working hours for each staff type based on radio selection
+    // Adjust these based on whether radio 4 or 5 is selected
+    let cateringArrivalOffset = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : -2;
+    let cateringDepartureOffset = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : 1;
+    let regisseurArrivalOffset = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? -1 : -2;
+    let regisseurDepartureOffset = 1; // Regisseur departure offset remains the same for all scenarios
+
+    const securityArrivalOffset = -0.5; // Security arrives 30 min before
+    const securityDepartureOffset = 0.5; // and leaves 30 min after
+
+    // Calculate actual working hours
+    const eventDurationHours = (endDateTime - startDateTime) / 3600000; // Convert milliseconds to hours
+    const cateringHours = Math.max(0, eventDurationHours + cateringArrivalOffset + cateringDepartureOffset);
+    const securityHours = eventRequiresSecurity ? Math.max(0, eventDurationHours + securityArrivalOffset + securityDepartureOffset) : 0;
+    const regisseurHours = Math.max(0, eventDurationHours + regisseurArrivalOffset + regisseurDepartureOffset);
+
+    // Assuming costPerCateringStaff, costPerSecurityStaff, and costPerRegisseur are defined
+    const cateringTeamMembers = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : getNumberOfCateringTeamMembers(numberOfAttendees);
+    const securityTeamMembers = eventRequiresSecurity ? getNumberOfSecurityMembers(numberOfAttendees, $('#nombre-securite').text()) : 0; // Update this call as necessary
+    const regisseurTeamMembers = 1; // Always 1 Regisseur
+
+    // Calculate total costs
+    const totalCateringCost = cateringHours * costPerCateringStaff * cateringTeamMembers;
+    const totalSecurityCost = securityHours * costPerSecurityStaff * securityTeamMembers;
+    const totalRegisseurCost = regisseurHours * costPerRegisseur * regisseurTeamMembers;
+
+    return {
+        totalCateringCost,
+        totalSecurityCost,
+        totalRegisseurCost
+    };
+}
+
+
+
+
+
+
 $(document).ready(function() {
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
@@ -268,7 +337,7 @@ const updatePricesAndTotal = () => {
 
     const totalHT = totalSum;
     const totalTTC = totalSum + totalTVA;
-    console.log(`Total HT: ${totalHT}, Total TTC: ${totalTTC}, Total TVA: ${totalTVA}`); // Log the final totals for clarity
+    console.log(`Total HT: ${totalHT}, Total TTC: ${totalTTC}, Total TVA: ${totalTVA}`); 
 
 
     const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
