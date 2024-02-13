@@ -11,18 +11,36 @@ function isEventAfter22h00(eventTimeString) {
 
 
 function parseEventTimes(eventTimeString) {
-    const [startDateString, endDateString] = eventTimeString.split(' au ');
-    const [startDate, startTime] = startDateString.split(' ');
-    const [endDate, endTime] = endDateString.split(' ');
+    // Mapping French month names to month numbers (0-indexed)
+    const monthNames = {
+        'janv': 0, 'févr': 1, 'mars': 2, 'avr': 3, 'mai': 4, 'juin': 5,
+        'juil': 6, 'août': 7, 'sept': 8, 'oct': 9, 'nov': 10, 'déc': 11,
+    };
 
-    const startDateTime = new Date(`${startDate} ${startTime}`);
-    const endDateTime = new Date(`${endDate} ${endTime}`);
+    // Remove periods and split the string to extract dates and times
+    const cleanedString = eventTimeString.replace(/\./g, '');
+    const parts = cleanedString.split(' à ');
+    
+    // Assuming the format "Day Month Year Time au Day Month Year Time"
+    const [startDay, startMonthYear, startTime, , endDay, endMonthYear, endTime] = parts.join(' ').split(' ');
+    
+    // Function to parse date parts into a Date object
+    const parseDate = (day, monthYear, time) => {
+        const [month, year] = monthYear.split(' ');
+        const [hours, minutes] = time.split('h');
+        const date = new Date(Date.UTC(year, monthNames[month], day, hours, minutes));
+        return date;
+    };
 
-    console.log(`Parsed Start DateTime: ${startDateTime}`);
-    console.log(`Parsed End DateTime: ${endDateTime}`);
+    const startDateTime = parseDate(startDay, startMonthYear, startTime);
+    const endDateTime = parseDate(endDay, endMonthYear, endTime);
+
+    console.log(`Parsed Start DateTime: ${startDateTime.toISOString()}`);
+    console.log(`Parsed End DateTime: ${endDateTime.toISOString()}`);
 
     return { startDateTime, endDateTime };
 }
+
 
 
 
