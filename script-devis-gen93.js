@@ -1,14 +1,39 @@
-function isEventAfter22h00(eventTimeString) {
-    const parts = eventTimeString.split(' au ');
-    const endTimeString = parts.length > 1 ? parts[1] : '';
-    const timePart = endTimeString.split('à')[1].trim(); 
-    const [hours, minutes] = timePart.split('h').map(Number);
+$(document).ready(function() {
+    // Step 1: Format the date of elements with class 'data-text-item'
+    $('.data-text-item').each(function() {
+        const originalText = $(this).text().trim();
+        $(this).text(formatDate(originalText));
+    });
 
-    console.log(`isEventAfter22h00: Event ends at ${hours}h${minutes}`);
+    // Step 2: After formatting, parse the event times and calculate staff costs
+    const eventTimeString = $('#data-text-item-check').text();
+    const { startDateTime, endDateTime } = parseEventTimes(eventTimeString);
+    console.log(`Parsed Start DateTime: ${startDateTime}`);
+    console.log(`Parsed End DateTime: ${endDateTime}`);
 
-    return hours >= 22 || (hours < 6 && hours >= 0);
+    // Proceed to calculate staff costs or other logic here
+    // calculateStaffCosts(); // Uncomment or implement as needed
+});
+
+function formatDate(inputText) {
+    const parts = inputText.split(' au ');
+    if (parts.length === 2) {
+        const formattedParts = parts.map(part => {
+            const [dateStr, timeStr] = part.split(' ');
+            const date = new Date(dateStr.split('/').reverse().join('-'));
+            
+            const weekday = date.toLocaleDateString('fr-FR', { weekday: 'short' }).charAt(0).toUpperCase() + date.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(1);
+            const day = date.getDate();
+            const month = date.toLocaleDateString('fr-FR', { month: 'short' }).slice(0, -1);
+            const year = date.getFullYear();
+
+            const formattedTime = timeStr.replace(':', 'h');
+            return `${weekday} ${day} ${month} ${year} à ${formattedTime}`;
+        });
+        return `${formattedParts[0]} au ${formattedParts[1]}`;
+    }
+    return inputText;
 }
-
 
 function parseEventTimes(eventTimeString) {
     const [startDateString, endDateString] = eventTimeString.split(' au ');
@@ -23,7 +48,6 @@ function parseEventTimes(eventTimeString) {
 
     return { startDateTime, endDateTime };
 }
-
 
 
 
