@@ -34,52 +34,46 @@ function parseEventTimes() {
 
 
 function calculateStaffCosts() {
-    const eventTimeString = $('#for-staff-date').text(); // Adjusted to fetch from the correct text block
-    const { startDateTime, endDateTime } = parseEventTimes(eventTimeString);
-    
-    // Scenario adjustments
-    let cateringArrivalOffset, cateringDepartureOffset, regisseurArrivalOffset, regisseurDepartureOffset;
-    const securityArrivalOffset = -0.5; // Security arrives 30 min before
-    const securityDepartureOffset = 0.5; // Security leaves 30 min after
+    // Parse event times
+    const { startDateTime, endDateTime } = parseEventTimes();
+    const eventDurationHours = (endDateTime - startDateTime) / 3600000; // Convert ms to hours
 
-    // Check which radio button is selected
+    // Check if Radio 4 or 5 is selected for catering staff requirement
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
 
+    // Define staff costs
+    const costPerCateringStaff = 35; // Assuming cost
+    const costPerSecurityStaff = 30; // Assuming cost
+    const costPerRegisseur = 40; // Assuming cost
+
+    // Initialize variables for hours worked
+    let cateringHours = 0, securityHours = 0, regisseurHours = 0;
+
     if (isRadio4Or5Checked) {
-        // No catering staff needed
-        cateringArrivalOffset = cateringDepartureOffset = 0;
-        regisseurArrivalOffset = -1; // Regisseur arrives 1h before
-        regisseurDepartureOffset = 1; // Regisseur leaves 1h after
+        // Catering staff not needed
+        regisseurHours = eventDurationHours + 2; // 1 hour before and 1 hour after
     } else {
         // Catering staff needed
-        cateringArrivalOffset = -2; // Catering arrives 2h before
-        cateringDepartureOffset = 1; // Catering leaves 1h after
-        regisseurArrivalOffset = -2; // Regisseur arrives 2h before
-        regisseurDepartureOffset = 1; // Regisseur leaves 1h after
+        cateringHours = eventDurationHours + 3; // 2 hours before and 1 hour after
+        regisseurHours = eventDurationHours + 3; // 2 hours before and 1 hour after
     }
 
-    // Calculate working hours
-    const eventDuration = (endDateTime - startDateTime) / 3600000; // Convert milliseconds to hours
-    const cateringHours = isRadio4Or5Checked ? 0 : Math.max(0, eventDuration + cateringArrivalOffset + cateringDepartureOffset);
-    const securityHours = isEventAfter22h00(eventTimeString) ? Math.max(0, eventDuration + securityArrivalOffset + securityDepartureOffset) : 0;
-    const regisseurHours = Math.max(0, eventDuration + regisseurArrivalOffset + regisseurDepartureOffset);
-
-    // Assuming hourly rates are defined
-    const costPerCateringStaff = 35; // Example hourly rate for catering staff
-    const costPerSecurityStaff = 30; // Example hourly rate for security staff
-    const costPerRegisseur = 40; // Example hourly rate for regisseur
+    // Security staff calculation based on event end time
+    if (isEventAfter22h00($('#for-staff-date').text())) {
+        securityHours = eventDurationHours + 1; // 30 min before and 30 min after
+    }
 
     // Calculate total costs
-    const totalCateringCost = cateringHours * costPerCateringStaff * getNumberOfCateringTeamMembers($('#nb-personnes-final-2').val());
-    const totalSecurityCost = securityHours * costPerSecurityStaff * getNumberOfSecurityMembers($('#nb-personnes-final-2').val(), $('#nombre-securite').text());
-    const totalRegisseurCost = regisseurHours * costPerRegisseur; // Assuming always 1 Regisseur
+    const totalCateringCost = cateringHours * costPerCateringStaff;
+    const totalSecurityCost = securityHours * costPerSecurityStaff;
+    const totalRegisseurCost = regisseurHours * costPerRegisseur;
 
-    return {
-        totalCateringCost,
-        totalSecurityCost,
-        totalRegisseurCost
-    };
+    // Update UI with calculated costs
+    $('#total-catering-cost').text(totalCateringCost.toFixed(2));
+    $('#total-security-cost').text(totalSecurityCost.toFixed(2));
+    $('#total-regisseur-cost').text(totalRegisseurCost.toFixed(2));
 }
+
 
 
 
