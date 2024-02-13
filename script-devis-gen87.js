@@ -10,26 +10,17 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 
-function parseEventTimes() {
-    const eventTimeString = $('#data-text-item-check').text(); // e.g., "20/02/2024 14:00 au 20/02/2024 17:00"
-    const [startPart, endPart] = eventTimeString.split(' au ');
-    const [startDateString, startTimeString] = startPart.split(' ');
-    const [endDateString, endTimeString] = endPart.split(' ');
+function parseEventTimes(eventTimeString) {
+    const [startDateString, endDateString] = eventTimeString.split(' au ');
+    const [startDate, startTime] = startDateString.split(' ');
+    const [endDate, endTime] = endDateString.split(' ');
 
-    // Convert DD/MM/YYYY to YYYY-MM-DD for compatibility
-    const startISODateString = startDateString.split('/').reverse().join('-');
-    const endISODateString = endDateString.split('/').reverse().join('-');
-
-    // Combine date and time parts into an ISO 8601 string format
-    const startDateTimeISO = `${startISODateString}T${startTimeString}:00`;
-    const endDateTimeISO = `${endISODateString}T${endTimeString}:00`;
-
-    // Create Date objects
-    const startDateTime = new Date(startDateTimeISO);
-    const endDateTime = new Date(endDateTimeISO);
+    const startDateTime = new Date(`${startDate} ${startTime}`);
+    const endDateTime = new Date(`${endDate} ${endTime}`);
 
     return { startDateTime, endDateTime };
 }
+
 
 
 
@@ -225,20 +216,33 @@ function updateTeamMembers() {
 }
 
 function updateSecurityStaff(eventTimeString, numberOfAttendees) {
-    console.log(`updateSecurityStaff called with eventTimeString: ${eventTimeString}, numberOfAttendees: ${numberOfAttendees}`);
+    const { startDateTime, endDateTime } = parseEventTimes(eventTimeString);
+    let totalHours = 0;
 
     if ($('.wrapper-security').is(':visible')) {
         if (isEventAfter22h00(eventTimeString)) {
+            const securityStartTime = new Date(startDateTime.getTime() - 30 * 60000); // 30 minutes before
+            const securityEndTime = new Date(endDateTime.getTime() + 30 * 60000); // 30 minutes after
+            totalHours = (securityEndTime - securityStartTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+            
             const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
+            const costPerSecurityStaff = 35; // Assuming a fixed cost per hour for simplicity
+            const totalCost = securityTeamMembers * costPerSecurityStaff * totalHours;
+
             $('#nombre-securite').text(securityTeamMembers);
+            // Assuming you have an element to show total cost for security staff
+            $('#total-cost-security').text(totalCost.toFixed(2));
         } else {
             $('#nombre-securite').text(0);
+            // Reset total cost if conditions not met
+            $('#total-cost-security').text('0.00');
         }
     } else {
         $('#nombre-securite').text(0);
+        $('#total-cost-security').text('0.00');
     }
-    
 }
+
 
 
 
