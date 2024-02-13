@@ -203,6 +203,12 @@ function updatePricesAndTotal() {
     const securityStaffCost = numberOfSecurityStaff * 35 * securityPresenceHours; // Assuming $35/hour for security
     const regisseurCost = numberOfRegisseurs * 40 * (eventEndHour - eventStartHour + 3); // Assuming $40/hour for régisseur
 
+    const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
+
+    $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
+
+
+
     // Update staff presence messages
     let securityMessage = numberOfSecurityStaff > 1 ? 
         `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTimeAdjust)} jusqu'à ${formatTime(securityEndTimeAdjust)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
