@@ -57,8 +57,9 @@ function updateSecurityStaffBasedOnEventTime(eventTimeString) {
 }
 
 
-let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
-$('.price-salle').text(initialPriceSalle.toFixed(2).replace('.', ','));
+let priceSalleForCalculation = Number($('.price-salle').text().replace(',', '.'));
+$('.price-salle').text(priceSalleForCalculation.toFixed(2).replace('.', ','));
+
 
 let initialPriceTraiteurPerso = 0;
 let YOUR_DEFAULT_CATERING_STAFF_COST = 35; 
