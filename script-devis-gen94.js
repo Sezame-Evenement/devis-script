@@ -1,50 +1,32 @@
-$(document).ready(function() {
-    // Step 1: Format the date of elements with class 'data-text-item'
-    $('.data-text-item').each(function() {
-        const originalText = $(this).text().trim();
-        $(this).text(formatDate(originalText));
-    });
+function isEventAfter22h00(eventTimeString) {
+    const parts = eventTimeString.split(' au ');
+    const endTimeString = parts.length > 1 ? parts[1] : '';
+    const timePart = endTimeString.split('à')[1].trim(); 
+    const [hours, minutes] = timePart.split('h').map(Number);
 
-    // Step 2: After formatting, parse the event times and calculate staff costs
-    const eventTimeString = $('#data-text-item-check').text();
-    const { startDateTime, endDateTime } = parseEventTimes(eventTimeString);
-    console.log(`Parsed Start DateTime: ${startDateTime}`);
-    console.log(`Parsed End DateTime: ${endDateTime}`);
+    console.log(`isEventAfter22h00: Event ends at ${hours}h${minutes}`);
 
-    // Proceed to calculate staff costs or other logic here
-    // calculateStaffCosts(); // Uncomment or implement as needed
-});
-
-function formatDate(inputText) {
-    const parts = inputText.split(' au ');
-    if (parts.length === 2) {
-        const formattedParts = parts.map(part => {
-            const [dateStr, timeStr] = part.split(' ');
-            const date = new Date(dateStr.split('/').reverse().join('-'));
-            
-            const weekday = date.toLocaleDateString('fr-FR', { weekday: 'short' }).charAt(0).toUpperCase() + date.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(1);
-            const day = date.getDate();
-            const month = date.toLocaleDateString('fr-FR', { month: 'short' }).slice(0, -1);
-            const year = date.getFullYear();
-
-            const formattedTime = timeStr.replace(':', 'h');
-            return `${weekday} ${day} ${month} ${year} à ${formattedTime}`;
-        });
-        return `${formattedParts[0]} au ${formattedParts[1]}`;
-    }
-    return inputText;
+    return hours >= 22 || (hours < 6 && hours >= 0);
 }
 
-function parseEventTimes(eventTimeString) {
-    const [startDateString, endDateString] = eventTimeString.split(' au ');
-    const [startDate, startTime] = startDateString.split(' ');
-    const [endDate, endTime] = endDateString.split(' ');
 
-    const startDateTime = new Date(`${startDate} ${startTime}`);
-    const endDateTime = new Date(`${endDate} ${endTime}`);
+function parseEventTimes() {
+    const eventTimeString = $('#for-staff-date').text(); // e.g., "20/02/2024 14:00 au 20/02/2024 17:00"
+    const [startPart, endPart] = eventTimeString.split(' au ');
+    const [startDateString, startTimeString] = startPart.split(' ');
+    const [endDateString, endTimeString] = endPart.split(' ');
 
-    console.log(`Parsed Start DateTime: ${startDateTime}`);
-    console.log(`Parsed End DateTime: ${endDateTime}`);
+    // Convert DD/MM/YYYY to YYYY-MM-DD for compatibility
+    const startISODateString = startDateString.split('/').reverse().join('-');
+    const endISODateString = endDateString.split('/').reverse().join('-');
+
+    // Combine date and time parts into an ISO 8601 string format
+    const startDateTimeISO = `${startISODateString}T${startTimeString}:00`;
+    const endDateTimeISO = `${endISODateString}T${endTimeString}:00`;
+
+    // Create Date objects
+    const startDateTime = new Date(startDateTimeISO);
+    const endDateTime = new Date(endDateTimeISO);
 
     return { startDateTime, endDateTime };
 }
@@ -52,53 +34,45 @@ function parseEventTimes(eventTimeString) {
 
 
 function calculateStaffCosts() {
-    // Extract event times directly from the element
-    const eventTimeString = $('#data-text-item-check').text();
-    console.log(`Raw Event Time String: '${eventTimeString}'`);
-    const parts = eventTimeString.split(' au ');
-    const startDateTimeString = parts[0];
-    const endDateTimeString = parts.length > 1 ? parts[1] : startDateTimeString; // Fallback to startDateTime if endDateTime is not available
-
-    // Convert to Date objects
-    const startDateTime = new Date(startDateTimeString.split(' ')[0].split('/').reverse().join('-') + 'T' + startDateTimeString.split(' ')[1] + ':00');
-    const endDateTime = new Date(endDateTimeString.split(' ')[0].split('/').reverse().join('-') + 'T' + endDateTimeString.split('à')[1].trim() + ':00');
-
-    // Other calculations remain the same...
-    const numberOfAttendees = parseInt($('#nb-personnes-final-2').val(), 10); // Get the number of attendees from the input
-
-    // Check if the event requires security
-    const eventRequiresSecurity = isEventAfter22h00(eventTimeString);
-    console.log("Event requires security:", eventRequiresSecurity);
-
-    // Calculate working hours for each staff type based on radio selection
-    // Adjust these based on whether radio 4 or 5 is selected
-    let cateringArrivalOffset = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : -2;
-    let cateringDepartureOffset = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : 1;
-    let regisseurArrivalOffset = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? -1 : -2;
-    let regisseurDepartureOffset = 1; // Regisseur departure offset remains the same for all scenarios
-
+    const eventTimeString = $('#for-staff-date').text(); // Adjusted to fetch from the correct text block
+    const { startDateTime, endDateTime } = parseEventTimes(eventTimeString);
+    
+    // Scenario adjustments
+    let cateringArrivalOffset, cateringDepartureOffset, regisseurArrivalOffset, regisseurDepartureOffset;
     const securityArrivalOffset = -0.5; // Security arrives 30 min before
-    const securityDepartureOffset = 0.5; // and leaves 30 min after
+    const securityDepartureOffset = 0.5; // Security leaves 30 min after
 
-    // Calculate actual working hours
-    const eventDurationHours = (endDateTime - startDateTime) / 3600000; // Convert milliseconds to hours
-    const cateringHours = Math.max(0, eventDurationHours + cateringArrivalOffset + cateringDepartureOffset);
-    const securityHours = eventRequiresSecurity ? Math.max(0, eventDurationHours + securityArrivalOffset + securityDepartureOffset) : 0;
-    const regisseurHours = Math.max(0, eventDurationHours + regisseurArrivalOffset + regisseurDepartureOffset);
-    console.log("Catering Hours:", cateringHours, "Security Hours:", securityHours, "Regisseur Hours:", regisseurHours);
+    // Check which radio button is selected
+    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
 
-    // Assuming costPerCateringStaff, costPerSecurityStaff, and costPerRegisseur are defined
-    const cateringTeamMembers = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : getNumberOfCateringTeamMembers(numberOfAttendees);
-    const securityTeamMembers = eventRequiresSecurity ? getNumberOfSecurityMembers(numberOfAttendees, $('#nombre-securite').text()) : 0; // Update this call as necessary
-    const regisseurTeamMembers = 1; // Always 1 Regisseur
+    if (isRadio4Or5Checked) {
+        // No catering staff needed
+        cateringArrivalOffset = cateringDepartureOffset = 0;
+        regisseurArrivalOffset = -1; // Regisseur arrives 1h before
+        regisseurDepartureOffset = 1; // Regisseur leaves 1h after
+    } else {
+        // Catering staff needed
+        cateringArrivalOffset = -2; // Catering arrives 2h before
+        cateringDepartureOffset = 1; // Catering leaves 1h after
+        regisseurArrivalOffset = -2; // Regisseur arrives 2h before
+        regisseurDepartureOffset = 1; // Regisseur leaves 1h after
+    }
 
-    console.log("Catering Team Members:", cateringTeamMembers, "Security Team Members:", securityTeamMembers, "Regisseur Team Members:", regisseurTeamMembers);
+    // Calculate working hours
+    const eventDuration = (endDateTime - startDateTime) / 3600000; // Convert milliseconds to hours
+    const cateringHours = isRadio4Or5Checked ? 0 : Math.max(0, eventDuration + cateringArrivalOffset + cateringDepartureOffset);
+    const securityHours = isEventAfter22h00(eventTimeString) ? Math.max(0, eventDuration + securityArrivalOffset + securityDepartureOffset) : 0;
+    const regisseurHours = Math.max(0, eventDuration + regisseurArrivalOffset + regisseurDepartureOffset);
 
+    // Assuming hourly rates are defined
+    const costPerCateringStaff = 35; // Example hourly rate for catering staff
+    const costPerSecurityStaff = 30; // Example hourly rate for security staff
+    const costPerRegisseur = 40; // Example hourly rate for regisseur
 
     // Calculate total costs
-    const totalCateringCost = cateringHours * costPerCateringStaff * cateringTeamMembers;
-    const totalSecurityCost = securityHours * costPerSecurityStaff * securityTeamMembers;
-    const totalRegisseurCost = regisseurHours * costPerRegisseur * regisseurTeamMembers;
+    const totalCateringCost = cateringHours * costPerCateringStaff * getNumberOfCateringTeamMembers($('#nb-personnes-final-2').val());
+    const totalSecurityCost = securityHours * costPerSecurityStaff * getNumberOfSecurityMembers($('#nb-personnes-final-2').val(), $('#nombre-securite').text());
+    const totalRegisseurCost = regisseurHours * costPerRegisseur; // Assuming always 1 Regisseur
 
     return {
         totalCateringCost,
@@ -244,33 +218,20 @@ function updateTeamMembers() {
 }
 
 function updateSecurityStaff(eventTimeString, numberOfAttendees) {
-    const { startDateTime, endDateTime } = parseEventTimes(eventTimeString);
-    let totalHours = 0;
+    console.log(`updateSecurityStaff called with eventTimeString: ${eventTimeString}, numberOfAttendees: ${numberOfAttendees}`);
 
     if ($('.wrapper-security').is(':visible')) {
         if (isEventAfter22h00(eventTimeString)) {
-            const securityStartTime = new Date(startDateTime.getTime() - 30 * 60000); // 30 minutes before
-            const securityEndTime = new Date(endDateTime.getTime() + 30 * 60000); // 30 minutes after
-            totalHours = (securityEndTime - securityStartTime) / (1000 * 60 * 60); // Convert milliseconds to hours
-            
             const securityTeamMembers = getNumberOfSecurityMembers(numberOfAttendees);
-            const costPerSecurityStaff = 35; // Assuming a fixed cost per hour for simplicity
-            const totalCost = securityTeamMembers * costPerSecurityStaff * totalHours;
-
             $('#nombre-securite').text(securityTeamMembers);
-            // Assuming you have an element to show total cost for security staff
-            $('#total-cost-security').text(totalCost.toFixed(2));
         } else {
             $('#nombre-securite').text(0);
-            // Reset total cost if conditions not met
-            $('#total-cost-security').text('0.00');
         }
     } else {
         $('#nombre-securite').text(0);
-        $('#total-cost-security').text('0.00');
     }
+    
 }
-
 
 
 
