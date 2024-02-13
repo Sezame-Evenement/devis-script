@@ -57,10 +57,7 @@ function updateSecurityStaffBasedOnEventTime(eventTimeString) {
 }
 
 
-let priceSalleForCalculation = Number($('.price-salle').text().replace(',', '.'));
-$('.price-salle').text(priceSalleForCalculation.toFixed(2).replace('.', ','));
-
-
+let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 let initialPriceTraiteurPerso = 0;
 let YOUR_DEFAULT_CATERING_STAFF_COST = 35; 
 let costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
@@ -381,3 +378,4 @@ $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
     updatePricesAndTotal();
 });
+
