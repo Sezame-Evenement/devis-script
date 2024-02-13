@@ -10,76 +10,6 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 
-function parseEventTimes() {
-    const eventTimeString = $('#for-staff-date').text(); // e.g., "20/02/2024 14:00 au 20/02/2024 17:00"
-    const [startPart, endPart] = eventTimeString.split(' au ');
-    const [startDateString, startTimeString] = startPart.split(' ');
-    const [endDateString, endTimeString] = endPart.split(' ');
-
-    // Convert DD/MM/YYYY to YYYY-MM-DD for compatibility
-    const startISODateString = startDateString.split('/').reverse().join('-');
-    const endISODateString = endDateString.split('/').reverse().join('-');
-
-    // Combine date and time parts into an ISO 8601 string format
-    const startDateTimeISO = `${startISODateString}T${startTimeString}:00`;
-    const endDateTimeISO = `${endISODateString}T${endTimeString}:00`;
-
-    // Create Date objects
-    const startDateTime = new Date(startDateTimeISO);
-    const endDateTime = new Date(endDateTimeISO);
-
-    return { startDateTime, endDateTime };
-}
-
-
-
-function calculateStaffCosts() {
-    // Parse event times
-    const { startDateTime, endDateTime } = parseEventTimes();
-    const eventDurationHours = (endDateTime - startDateTime) / 3600000; // Convert ms to hours
-
-    // Check if Radio 4 or 5 is selected for catering staff requirement
-    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-
-    // Define staff costs
-    const costPerCateringStaff = 35; // Assuming cost
-    const costPerSecurityStaff = 30; // Assuming cost
-    const costPerRegisseur = 40; // Assuming cost
-
-    // Initialize variables for hours worked
-    let cateringHours = 0, securityHours = 0, regisseurHours = 0;
-
-    if (isRadio4Or5Checked) {
-        // Catering staff not needed
-        regisseurHours = eventDurationHours + 2; // 1 hour before and 1 hour after
-    } else {
-        // Catering staff needed
-        cateringHours = eventDurationHours + 3; // 2 hours before and 1 hour after
-        regisseurHours = eventDurationHours + 3; // 2 hours before and 1 hour after
-    }
-
-    // Security staff calculation based on event end time
-    if (isEventAfter22h00($('#for-staff-date').text())) {
-        securityHours = eventDurationHours + 1; // 30 min before and 30 min after
-    }
-
-    // Calculate total costs
-    const totalCateringCost = cateringHours * costPerCateringStaff;
-    const totalSecurityCost = securityHours * costPerSecurityStaff;
-    const totalRegisseurCost = regisseurHours * costPerRegisseur;
-
-    // Update UI with calculated costs
-    $('#total-catering-cost').text(totalCateringCost.toFixed(2));
-    $('#total-security-cost').text(totalSecurityCost.toFixed(2));
-    $('#total-regisseur-cost').text(totalRegisseurCost.toFixed(2));
-}
-
-
-
-
-
-
-
 $(document).ready(function() {
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
@@ -242,7 +172,7 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 });
 
 
-const updatePricesAndTotal = () => {
+function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
@@ -250,6 +180,11 @@ const updatePricesAndTotal = () => {
         $('#nombre-equipier-traiteur').text('0'); 
              console.log("Updating prices: Catering and Security staff set to 0 due to radio 4 or 5 selection"); 
     }
+
+    
+
+
+
     let numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     let sumSpecialite1 = 0;
     let sumSpecialite2 = 0;
@@ -338,7 +273,7 @@ const updatePricesAndTotal = () => {
 
     const totalHT = totalSum;
     const totalTTC = totalSum + totalTVA;
-    console.log(`Total HT: ${totalHT}, Total TTC: ${totalTTC}, Total TVA: ${totalTVA}`); 
+    console.log(`Total HT: ${totalHT}, Total TTC: ${totalTTC}, Total TVA: ${totalTVA}`); // Log the final totals for clarity
 
 
     const formattedTotalHT = totalHT.toFixed(2).replace('.', ',');
