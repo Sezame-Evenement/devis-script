@@ -177,6 +177,9 @@ function updatePricesAndTotal() {
 
     // Determine if Radio 4 or 5 is checked indicating no catering staff is needed
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
+    const numberOfSecurityStaff = Number($('#nombre-securite').text());
+    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
     $('#nombre-equipier-traiteur').text(isRadio4Or5Checked ? '0' : $('#nombre-equipier-traiteur').text());
 
     // Calculate event duration
@@ -206,8 +209,8 @@ function updatePricesAndTotal() {
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
     $('#temps-staff-traiteur').text(`${numberOfCateringStaff} Traiteurs seront présents de ${startTime} jusqu'à ${endTime} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}/h soit ${cateringStaffCost.toFixed(2)}`);
-    $('#temps-staff-securite').text(`${numberOfSecurityStaff} Agents de sécurité seront présents de ${startTime} jusqu'à ${endTime} pour un montant de 35/h soit ${securityStaffCost.toFixed(2)}`);
-    $('#temps-regisseur').text(`${numberOfRegisseurs} Régisseurs seront présents de ${startTime} jusqu'à ${endTime} pour un montant de 40/h soit ${regisseurCost.toFixed(2)}`);
+    $('#temps-staff-securite').text(`${numberOfSecurityStaff} Agents de sécurité seront présents de ${startTime} jusqu'à ${endTime} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}`);
+    $('#temps-regisseur').text(`${numberOfRegisseurs} Régisseurs seront présents de ${startTime} jusqu'à ${endTime} pour un montant de 40€/h soit ${regisseurCost.toFixed(2)}`);
 
    
  // Item and meal cost calculations
