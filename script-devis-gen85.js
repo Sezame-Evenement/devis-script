@@ -15,12 +15,16 @@ function parseEventTimes() {
     const [startDateString, endDateString] = eventTimeString.split(' au ');
     const [startDate, startTime] = startDateString.split(' ');
     const [endDate, endTime] = endDateString.split(' ');
+    
 
     // Convert date and time to a JavaScript Date object
     const startDateTime = new Date(`${startDate.split('/').reverse().join('-')}T${startTime}:00`);
     const endDateTime = new Date(`${endDate.split('/').reverse().join('-')}T${endTime}:00`);
+    console.log("Event Start DateTime:", startDateTime);
+    console.log("Event End DateTime:", endDateTime);
 
     return { startDateTime, endDateTime };
+    
 }
 
 
@@ -40,6 +44,7 @@ function calculateStaffCosts() {
 
     // Check if the event requires security
     const eventRequiresSecurity = isEventAfter22h00(eventTimeString);
+    console.log("Event requires security:", eventRequiresSecurity);
 
     // Calculate working hours for each staff type based on radio selection
     // Adjust these based on whether radio 4 or 5 is selected
@@ -56,11 +61,15 @@ function calculateStaffCosts() {
     const cateringHours = Math.max(0, eventDurationHours + cateringArrivalOffset + cateringDepartureOffset);
     const securityHours = eventRequiresSecurity ? Math.max(0, eventDurationHours + securityArrivalOffset + securityDepartureOffset) : 0;
     const regisseurHours = Math.max(0, eventDurationHours + regisseurArrivalOffset + regisseurDepartureOffset);
+    console.log("Catering Hours:", cateringHours, "Security Hours:", securityHours, "Regisseur Hours:", regisseurHours);
 
     // Assuming costPerCateringStaff, costPerSecurityStaff, and costPerRegisseur are defined
     const cateringTeamMembers = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0 ? 0 : getNumberOfCateringTeamMembers(numberOfAttendees);
     const securityTeamMembers = eventRequiresSecurity ? getNumberOfSecurityMembers(numberOfAttendees, $('#nombre-securite').text()) : 0; // Update this call as necessary
     const regisseurTeamMembers = 1; // Always 1 Regisseur
+
+    console.log("Catering Team Members:", cateringTeamMembers, "Security Team Members:", securityTeamMembers, "Regisseur Team Members:", regisseurTeamMembers);
+
 
     // Calculate total costs
     const totalCateringCost = cateringHours * costPerCateringStaff * cateringTeamMembers;
