@@ -11,31 +11,12 @@ function isEventAfter22h00(eventTimeString) {
 
 
 function parseEventTimes(eventTimeString) {
-    // French month names mapping to month numbers (0-indexed for JavaScript Date)
-    const monthNames = {
-        'janv': 0, 'févr': 1, 'mars': 2, 'avr': 3, 'mai': 4, 'juin': 5,
-        'juil': 6, 'août': 7, 'sept': 8, 'oct': 9, 'nov': 10, 'déc': 11
-    };
+    const [startDateString, endDateString] = eventTimeString.split(' au ');
+    const [startDate, startTime] = startDateString.split(' ');
+    const [endDate, endTime] = endDateString.split(' ');
 
-    const parseDate = (dateString) => {
-        const [day, month, year] = dateString.split(' ');
-        const monthIndex = monthNames[month.toLowerCase()];
-        return new Date(year, monthIndex, day);
-    };
-
-    const parseTime = (timeString) => {
-        const [hours, minutes] = timeString.split('h');
-        return { hours: parseInt(hours, 10), minutes: parseInt(minutes, 10) };
-    };
-
-    const [startDateString, startTimeString, , endDateString, endTimeString] = eventTimeString.split(/[\sà]+/);
-    const startDate = parseDate(startDateString);
-    const startTime = parseTime(startTimeString);
-    const endDate = parseDate(endDateString);
-    const endTime = parseTime(endTimeString);
-
-    const startDateTime = new Date(startDate.setHours(startTime.hours, startTime.minutes));
-    const endDateTime = new Date(endDate.setHours(endTime.hours, endTime.minutes));
+    const startDateTime = new Date(`${startDate} ${startTime}`);
+    const endDateTime = new Date(`${endDate} ${endTime}`);
 
     console.log(`Parsed Start DateTime: ${startDateTime}`);
     console.log(`Parsed End DateTime: ${endDateTime}`);
@@ -46,10 +27,10 @@ function parseEventTimes(eventTimeString) {
 
 
 
-
 function calculateStaffCosts() {
     // Extract event times directly from the element
     const eventTimeString = $('#data-text-item-check').text();
+    console.log(`Raw Event Time String: '${eventTimeString}'`);
     const parts = eventTimeString.split(' au ');
     const startDateTimeString = parts[0];
     const endDateTimeString = parts.length > 1 ? parts[1] : startDateTimeString; // Fallback to startDateTime if endDateTime is not available
