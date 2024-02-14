@@ -159,7 +159,6 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 
-$(document).ready(function() {
     // Click event handler for radio buttons
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
         // Determine if radio 4 or 5 is checked
@@ -178,7 +177,7 @@ $(document).ready(function() {
         // Call updatePricesAndTotal with the correct state
         updatePricesAndTotal(isRadio4Or5Checked);
     });
-});
+
 
 
 function formatTime(time) {
