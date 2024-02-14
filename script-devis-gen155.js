@@ -292,6 +292,7 @@ function updatePricesAndTotal() {
 
 
  // Finalize total cost calculations
+ const tvaRate = 0.2;
  let totalStaffCost = regisseurCost + cateringCost + securityCost;
  console.log(`Total staff cost: ${totalStaffCost.toFixed(2)}€`);
 
