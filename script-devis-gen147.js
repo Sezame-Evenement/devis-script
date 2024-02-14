@@ -179,10 +179,17 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 
 
-function formatTime(time) {
-    const hours = Math.floor(time);
-    const minutes = Math.round((time - hours) * 60);
-    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+function formatTime(decimalTime) {
+    // Adjust time to wrap around if it exceeds 24 hours
+    let adjustedTime = decimalTime % 24;
+    let hours = Math.floor(adjustedTime);
+    let minutes = Math.round((adjustedTime - hours) * 60);
+
+    // Format hours and minutes to ensure two digits
+    let hoursFormatted = hours.toString().padStart(2, '0');
+    let minutesFormatted = minutes.toString().padStart(2, '0');
+
+    return `${hoursFormatted}h${minutesFormatted}`;
 }
 
 
