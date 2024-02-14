@@ -185,9 +185,10 @@ function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
+        console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
-    // Parse event time from the UI
+    
+    // Event time parsing and duration calculation
     const eventTimeString = $('#data-text-item-check').text();
     const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
     const [startHour, startMinute] = startTime.split('h').map(Number);
@@ -195,34 +196,43 @@ function updatePricesAndTotal() {
 
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for overnight events
+    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
-    // Adjust security staff times based on event time
-    let securityStartTime = eventStartHour < 18 ? 17.5 : eventStartHour - 0.5;
-    let securityEndTime = eventEndHour + 0.5;
-    if (securityEndTime >= 24) securityEndTime -= 24;
+    // Determine security staff requirements based on event timing
+    let securityNeeded = (eventStartHour >= 18 && eventStartHour <= 6) || (eventEndHour >= 18 || eventEndHour <= 6);
+    let securityStartTime;
+    let securityEndTime;
 
-    // Adjust regisseur times based on radio selection
-    let regisseurArrivalOffset = isRadio4Or5Checked ? -1 : -2; // 1 hour before for radio 4/5, 2 hours before otherwise
-    let regisseurDepartureOffset = 1; // 1 hour after for all scenarios
+    // Security timing logic
+    if (eventStartHour >= 6 && eventStartHour < 18) {
+        // For events starting between 6h to 18h, security arrives at 17:30
+        securityStartTime = 17.5;
+    } else {
+        // For events starting at or after 18h00 and before 6h00, security arrives 30 minutes before
+        securityStartTime = eventStartHour - 0.5;
+    }
 
-    let regisseurArrivalTime = eventStartHour + regisseurArrivalOffset;
-    let regisseurDepartureTime = eventEndHour + regisseurDepartureOffset;
-    if (regisseurDepartureTime >= 24) regisseurDepartureTime -= 24; // Adjust if exceeds 24 hours
+    securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
+    if (securityEndTime >= 24) securityEndTime -= 24; // Adjust if exceeds 24 hours
 
-    // Define staff counts
+    // Security presence hours calculation
+    let securityPresenceHours = securityEndTime - securityStartTime;
+    if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
+
+    // Staff counts based on selections and calculated needs
     const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
-    const numberOfSecurityStaff = Number($('#nombre-securite').text());
+    const numberOfSecurityStaff = securityNeeded ? Number($('#nombre-securite').text()) : 0;
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
-    // Calculate staff costs with placeholders for actual values
+    // Cost constants (placeholders, replace with actual values)
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const SECURITY_STAFF_COST_PER_HOUR = 35;
     const REGISSEUR_COST_PER_HOUR = 40;
 
-    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + (isRadio4Or5Checked ? 2 : 3));
-    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * (securityEndTime - securityStartTime);
-    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (regisseurDepartureTime - regisseurArrivalTime);
+    // Staff cost calculations
+    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + 3);
+    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * securityPresenceHours;
+    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (eventEndHour - eventStartHour + 3);
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
