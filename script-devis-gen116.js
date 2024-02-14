@@ -171,6 +171,13 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     resetPricingCalculator();
 });
 
+function formatTime(time) {
+    let hours = Math.floor(time);
+    let minutes = Math.round((time - hours) * 60);
+    hours = hours % 24; // Correctly wrap hours exceeding 24 into a 24-hour format
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
+
 function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
 
@@ -197,10 +204,13 @@ function updatePricesAndTotal() {
         securityStartTime = eventStartHour - 0.5; // Security arrives 30 minutes before the event starts if after 18h00
     }
 
-    let securityPresenceHours = securityNeeded ? (eventEndHour + 0.5 - securityStartTime) : 0;
-    if (securityPresenceHours < 0) {
-        securityPresenceHours += 24; // Adjust if spans past midnight
+    let securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
+    if (securityEndTime >= 24) {
+        securityEndTime -= 24; // Adjust if exceeds 24 hours, for presentation purposes
     }
+
+    let securityPresenceHours = securityEndTime - securityStartTime;
+    if (securityPresenceHours < 0) securityPresenceHours += 24; 
 
     // Define staff counts based on radio selections and calculated needs
     const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
@@ -221,16 +231,13 @@ function updatePricesAndTotal() {
 
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
 
+    console.log(`Security start time: ${formatTime(securityStartTime)}, end time: ${formatTime(securityEndTime)}`);
 
-
-
-
-
-
-    // Update staff presence messages
     let securityMessage = numberOfSecurityStaff > 1 ? 
-    `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
-    `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€`;
+        `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
+        `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€`;
+
+    // Catering and Régisseur messages remain unchanged...
     // Catering staff message
     let cateringMessage = `Le staff traiteur sera présent de ${formatTime(eventStartHour - 2)} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}€/h soit ${cateringStaffCost.toFixed(2)}€`;
 
@@ -293,14 +300,8 @@ $('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
 $('.hack42-send-value').val(totalHT.toFixed(2));
 }
 
-function formatTime(hour) {
-    // Ensure hour falls within a 24-hour range
-    let adjustedHour = hour % 24;
-    let hourPart = Math.floor(adjustedHour);
-    let minutePart = Math.floor((adjustedHour - hourPart) * 60);
-    // Format the hour and minute parts to ensure two digits
-    return `${hourPart.toString().padStart(2, '0')}h${minutePart.toString().padStart(2, '0')}`;
-}
+
+
 
 
 
