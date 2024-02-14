@@ -277,10 +277,19 @@ $('.hack42-send-value').val(totalHT.toFixed(2));
 }
 
 function formatTime(time) {
+    // Calculate hours and minutes from the given time
     let hour = Math.floor(time);
     let minute = Math.floor((time % 1) * 60);
+
+    // Adjust for hours greater than 24 (for events that end after midnight)
+    if (hour >= 24) {
+        hour -= 24; // Subtract 24 to convert to the next day's time
+    }
+
+    // Format the time string with leading zeros if necessary
     return `${hour.toString().padStart(2, '0')}h${minute.toString().padStart(2, '0')}`;
 }
+
 
 
 
