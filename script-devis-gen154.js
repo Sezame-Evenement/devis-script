@@ -221,15 +221,21 @@ function updatePricesAndTotal() {
     // Calculate working hours, ensuring no negative values
     let regisseurHours = regisseurDeparture - regisseurArrival;
     let cateringHours = !isRadio4Or5Checked ? cateringDeparture - cateringArrival : 0;
-    if (securityArrival !== undefined && securityDeparture !== undefined) {
-        let securityHours = securityDeparture - securityArrival;
-        if (securityHours < 0) securityHours += 24; // Adjust for events that end the next day
-        console.log(`Calculated security hours: ${securityHours}`);
+    let securityArrival, securityDeparture;
+    if (eventStartDecimal < 18) {
+        securityArrival = 17.5; // If event starts before 18h, security arrives at 17h30
     } else {
-        // Default to 0 if we don't have valid arrival and departure times
-        let securityHours = 0;
-        console.log("Security hours set to 0 due to undefined arrival/departure times.");
+        // If event starts at/after 18h or is after 22h00, security arrives 30 mins before
+        securityArrival = eventStartDecimal >= 18 ? eventStartDecimal - 0.5 : 17.5;
     }
+    securityDeparture = eventEndDecimal + 0.5; // Security leaves 30 mins after event ends
+
+    // Now calculate securityHours using the defined arrival and departure times
+    securityHours = securityDeparture - securityArrival;
+    if (securityHours < 0) securityHours += 24; // Adjust for events that end the next day
+
+    console.log(`Security arrival: ${securityArrival}, departure: ${securityDeparture}, hours: ${securityHours}`);
+
 
     // Security staff timing logic adjusted per requirements
     if (eventStartDecimal < 18) {
@@ -266,7 +272,7 @@ function updatePricesAndTotal() {
     
     let regisseurCost = regisseurHours * regisseurRate * numberOfRegisseurs;
     let cateringCost = cateringHours * cateringRate * numberOfCateringStaff;
-    let securityCost = securityHours * securityRate * numberOfSecurityStaff;
+    let securityCost = securityHours * securityRate * numberOfSecurityStaff; // Use the correctly scoped securityHours
 
     console.log(`Cost calculations - Regisseur: ${regisseurCost}, Catering: ${cateringCost}, Security: ${securityCost}`);
 
