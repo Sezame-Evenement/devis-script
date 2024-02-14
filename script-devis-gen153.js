@@ -221,7 +221,15 @@ function updatePricesAndTotal() {
     // Calculate working hours, ensuring no negative values
     let regisseurHours = regisseurDeparture - regisseurArrival;
     let cateringHours = !isRadio4Or5Checked ? cateringDeparture - cateringArrival : 0;
-    let securityArrival, securityDeparture;
+    if (securityArrival !== undefined && securityDeparture !== undefined) {
+        let securityHours = securityDeparture - securityArrival;
+        if (securityHours < 0) securityHours += 24; // Adjust for events that end the next day
+        console.log(`Calculated security hours: ${securityHours}`);
+    } else {
+        // Default to 0 if we don't have valid arrival and departure times
+        let securityHours = 0;
+        console.log("Security hours set to 0 due to undefined arrival/departure times.");
+    }
 
     // Security staff timing logic adjusted per requirements
     if (eventStartDecimal < 18) {
