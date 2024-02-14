@@ -186,6 +186,8 @@ function updatePricesAndTotal() {
     // Check which radio buttons are selected
     let isRadio1To3Checked = $('.ms-radio-button-tab-is-1:checked, .ms-radio-button-tab-is-2:checked, .ms-radio-button-tab-is-3:checked').length > 0;
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    let numberOfSecurityStaff = getNumberOfSecurityMembers($('#nb-personnes-final-2').val(), undefined); // Ensure this function exists and is called appropriately
+
 
     // Parse event time
     const eventTimeString = $('#data-text-item-check').text();
