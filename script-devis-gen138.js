@@ -159,7 +159,12 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 
-
+// Utility function to format times for display
+function formatTime(hourDecimal) {
+    const hours = Math.floor(hourDecimal);
+    const minutes = Math.round((hourDecimal - hours) * 60);
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
 
 
 
@@ -270,12 +275,7 @@ function constructAndDisplayMessages(securityDetails, staffCosts) {
     $('#temps-regisseur').text(regisseurMessage);
 }
 
-// Utility function to format times for display
-function formatTime(hourDecimal) {
-    const hours = Math.floor(hourDecimal);
-    const minutes = Math.round((hourDecimal - hours) * 60);
-    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
-}
+
 
 
 
