@@ -185,28 +185,18 @@ function updatePricesAndTotal() {
 
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) {
-        eventEndHour += 24; // Adjust for events ending after midnight
-    }
+    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
     // Adjust security staff start time based on event start time
-    // Security arrives at 17:30 if event starts before 18h, else 30 min before event
     let securityStartTime = (startHour < 18) ? 17.5 : eventStartHour - 0.5;
-    // Normalize security start time for events starting after midnight
-    if (securityStartTime < 0) {
-        securityStartTime += 24;
-    }
-    
-    let securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
-    // Adjust for security end time going past midnight
-    if (securityEndTime >= 24) {
-        securityEndTime -= 24;
-    }
+    if (securityStartTime < 0) securityStartTime += 24; // Normalize for events starting late
 
-    const securityPresenceHours = securityEndTime - securityStartTime;
-    if (securityPresenceHours < 0) {
-        securityPresenceHours += 24; // Handle case where security presence spans past midnight
-    }
+    let securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
+    if (securityEndTime >= 24) securityEndTime -= 24; // Adjust if exceeds 24 hours
+
+    // Calculate the presence hours of security staff
+    let securityPresenceHours = securityEndTime - securityStartTime;
+    if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
 
     // Define staff counts
     const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
@@ -214,6 +204,7 @@ function updatePricesAndTotal() {
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
     // Calculate staff costs
+    const YOUR_DEFAULT_CATERING_STAFF_COST = 35; // Ensure this value is correctly set according to your application
     const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + 3); // Catering staff hours
     const securityStaffCost = numberOfSecurityStaff * 35 * securityPresenceHours; // Assuming $35/hour for security
     const regisseurCost = numberOfRegisseurs * 40 * (eventEndHour - eventStartHour + 3); // Assuming $40/hour for régisseur
@@ -221,6 +212,7 @@ function updatePricesAndTotal() {
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
 
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
+
 
 
 
