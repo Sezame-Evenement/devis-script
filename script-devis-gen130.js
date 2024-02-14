@@ -182,10 +182,12 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 });
 
 function updatePricesAndTotal() {
-    console.log("updatePricesAndTotal called");
+    console.log("Checking radio button states before isRadio4Or5Checked:");
+    console.log("Radio 4 checked state:", $('.ms-radio-button-tab-is-4').prop('checked'));
+    console.log("Radio 5 checked state:", $('.ms-radio-button-tab-is-5').prop('checked'));
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-        console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
+    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
     
     // Event time parsing and duration calculation
