@@ -162,17 +162,14 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log(`Radio button clicked: ${$(this).attr('class')}`);
 
-    // Determine if radio 4 or 5 is checked directly within the click event
-    let isRadio4Or5Checked = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
-    if (isRadio4Or5Checked) {
+    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+    if (isRadio4Or5) {
         $('#nombre-equipier-traiteur').text('0');
     } else {
-        updateTeamMembers();
+        updateTeamMembers(); 
     }
-    // Pass the state to the updatePricesAndTotal function
-    updatePricesAndTotal(isRadio4Or5Checked);
+    resetPricingCalculator();
 });
-
 
 function formatTime(time) {
     let hours = Math.floor(time);
