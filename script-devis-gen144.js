@@ -161,12 +161,7 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 
-function formatTime(time) {
-    let hours = Math.floor(time);
-    let minutes = Math.round((time - hours) * 60);
-    hours = hours % 24; // Correctly wrap hours exceeding 24 into a 24-hour format
-    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
-}
+
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log(`lol - Radio button clicked: ${$(this).attr('class')}`);
@@ -182,86 +177,82 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     updatePricesAndTotal(); // No need to pass isRadio4Or5 since we can check inside the function
 });
 
+
+
+
 function updatePricesAndTotal() {
-    console.log("Checking radio button states before isRadio4Or5Checked:");
-    console.log("Radio 4 checked state:", $('.ms-radio-button-tab-is-4').prop('checked'));
-    console.log("Radio 5 checked state:", $('.ms-radio-button-tab-is-5').prop('checked'));
-
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
-    
-    // Event time parsing and duration calculation
+    // Parse event start and end times
     const eventTimeString = $('#data-text-item-check').text();
     const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
     const [startHour, startMinute] = startTime.split('h').map(Number);
     const [endHour, endMinute] = endTime.split('h').map(Number);
 
-    let eventStartHour = startHour + startMinute / 60;
-    let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
+    // Convert hours and minutes to decimal time
+    let eventStartDecimal = startHour + startMinute / 60;
+    let eventEndDecimal = endHour + endMinute / 60;
+    if (eventEndDecimal < eventStartDecimal) eventEndDecimal += 24; // Adjust for events ending after midnight
 
-    // Determine security staff requirements based on event timing
-    let securityNeeded = (eventStartHour >= 18 && eventStartHour <= 6) || (eventEndHour >= 18 || eventEndHour <= 6);
-    let securityStartTime;
-    let securityEndTime;
+    // Default arrival and departure times for staff
+    let regisseurArrival, regisseurDeparture, cateringArrival, cateringDeparture, securityArrival, securityDeparture;
 
-    // Security timing logic
-    if (eventStartHour >= 6 && eventStartHour < 18) {
-        // For events starting between 6h to 18h, security arrives at 17:30
-        securityStartTime = 17.5;
+    if (isRadio4Or5Checked) {
+        // For options 4 or 5
+        regisseurArrival = eventStartDecimal - 1; // Arrives 1 hour before
+        regisseurDeparture = eventEndDecimal + 1; // Leaves 1 hour after
+        // Catering staff are not present for options 4 and 5
+        cateringArrival = cateringDeparture = null;
     } else {
-        // For events starting at or after 18h00 and before 6h00, security arrives 30 minutes before
-        securityStartTime = eventStartHour - 0.5;
+        // For options 1, 2, or 3
+        regisseurArrival = cateringArrival = eventStartDecimal - 2; // Arrive 2 hours before
+        regisseurDeparture = cateringDeparture = eventEndDecimal + 1; // Leave 1 hour after
     }
 
-    securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
-    if (securityEndTime >= 24) securityEndTime -= 24; // Adjust if exceeds 24 hours
-
-    // Security presence hours calculation
-    let securityPresenceHours = securityEndTime - securityStartTime;
-    if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
-
-    // Staff counts based on selections and calculated needs
-    const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
-    const numberOfSecurityStaff = securityNeeded ? Number($('#nombre-securite').text()) : 0;
-    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
-
-    // Cost constants (placeholders, replace with actual values)
-    const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
-    const SECURITY_STAFF_COST_PER_HOUR = 35;
-    const REGISSEUR_COST_PER_HOUR = 40;
-
-    // Staff cost calculations
-    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + 3);
-    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * securityPresenceHours;
-    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (eventEndHour - eventStartHour + 3);
-
-    const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
-    $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
-
-    // Constructing staff presence messages
-    let securityMessage = numberOfSecurityStaff > 1 ? 
-        `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
-        `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€`;
-
-    let cateringMessage = `Le staff traiteur sera présent de ${formatTime(eventStartHour - 2)} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}€/h soit ${cateringStaffCost.toFixed(2)}€`;
-
-    let regisseurMessage = `Le régisseur ou la régisseuse sera présent(e) de ${formatTime(eventStartHour - 2)} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de 40€/h soit ${regisseurCost.toFixed(2)}€`;
-
-
-    // Conditionally display messages based on staff presence
-    if (numberOfSecurityStaff > 0) {
-        $('#temps-staff-securite').text(securityMessage);
-    } else if (!isEventAfter22h00(eventTimeString)) {
-        $('#temps-staff-securite').text(''); // Hide or clear message if security not needed
+    // Security staff timing logic
+    if (isEventAfter22h00(eventTimeString)) {
+        // If the event starts at or after 18h00 or it's after 22h00
+        securityArrival = eventStartDecimal >= 18 ? eventStartDecimal - 0.5 : 17.5; // If event starts after 18h00, arrive 30 mins before, otherwise at 17:30
+        securityDeparture = eventEndDecimal + 0.5; // Leaves 30 mins after
+    } else {
+        // Default security timing for events not specifically after 22h00
+        securityArrival = securityDeparture = null; // Adjust based on your event logic
     }
-    
-    if (numberOfCateringStaff > 0) {
+
+    // Calculate the total hours for each staff category
+    let regisseurHours = regisseurDeparture - regisseurArrival;
+    let cateringHours = cateringDeparture - cateringArrival;
+    let securityHours = securityDeparture - securityArrival;
+
+    // Placeholder for staff hourly rates (assume these are predefined somewhere in your script)
+    const regisseurRate = 40; // Example rate
+    const cateringRate = 35; // Example rate
+    const securityRate = 30; // Example rate
+
+    // Calculate total costs for each staff category
+    let regisseurCost = regisseurHours * regisseurRate;
+    let cateringCost = cateringHours ? cateringHours * cateringRate : 0; // Only calculate if catering staff are present
+    let securityCost = securityHours ? securityHours * securityRate : 0; // Only calculate if security staff are required
+
+    // Construct the display messages
+    let regisseurMessage = `Le staff regisseur sera présent de ${formatTime(regisseurArrival)} jusqu'à ${formatTime(regisseurDeparture)} pour un montant de ${regisseurCost.toFixed(2)}€ pour un total de ${regisseurHours.toFixed(2)} heures.`;
+    let cateringMessage = `Le staff traiteur sera présent de ${formatTime(cateringArrival)} jusqu'à ${formatTime(cateringDeparture)} pour un montant de ${cateringCost.toFixed(2)}€ pour un total de ${cateringHours.toFixed(2)} heures.`;
+    let securityMessage = `Le staff sécurité sera présent de ${formatTime(securityArrival)} jusqu'à ${formatTime(securityDeparture)} pour un montant de ${securityCost.toFixed(2)}€ pour un total de ${securityHours.toFixed(2)} heures.`;
+
+    // Update UI with the messages
+    if (!isRadio4Or5Checked) { // Update only if catering staff are supposed to be present
         $('#temps-staff-traiteur').text(cateringMessage);
     }
-    
-    $('#temps-regisseur').text(regisseurMessage);
+    $('#temps-staff-regisseur').text(regisseurMessage);
+    if (securityArrival && securityDeparture) { // Update only if security timing is set
+        $('#temps-staff-securite').text(securityMessage);
+    }
+
+
+
+
+
+
 
    
  // Item and meal cost calculations
