@@ -220,9 +220,8 @@ function updatePricesAndTotal() {
 
     // Update staff presence messages
     let securityMessage = numberOfSecurityStaff > 1 ? 
-        `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTimeAdjust)} jusqu'à ${formatTime(securityEndTimeAdjust)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
-        `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTimeAdjust)} jusqu'à ${formatTime(securityEndTimeAdjust)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€`;
-
+    `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
+    `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€`;
     // Catering staff message
     let cateringMessage = `Le staff traiteur sera présent de ${formatTime(eventStartHour - 2)} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}€/h soit ${cateringStaffCost.toFixed(2)}€`;
 
