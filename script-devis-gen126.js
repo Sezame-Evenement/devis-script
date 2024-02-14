@@ -159,25 +159,6 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 
-    // Click event handler for radio buttons
-    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-        // Determine if radio 4 or 5 is checked
-        let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4').is(':checked') || $('.ms-radio-button-tab-is-5').is(':checked');
-        console.log(`Radio button clicked: ${$(this).attr('class')}`);
-        console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
-
-        // Make adjustments based on the radio button clicked
-        if (isRadio4Or5Checked) {
-            $('#nombre-equipier-traiteur').text('0');
-        } else {
-            // Call updateTeamMembers() if it's necessary for your logic
-            updateTeamMembers();
-        }
-
-        // Call updatePricesAndTotal with the correct state
-        updatePricesAndTotal(isRadio4Or5Checked);
-    });
-
 
 
 function formatTime(time) {
@@ -187,11 +168,26 @@ function formatTime(time) {
     return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
 }
 
-function updatePricesAndTotal(isRadio4Or5Checked) { // Now accepts the state as a parameter
+$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    console.log(`Radio button clicked: ${$(this).attr('class')}`);
+    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+
+    if (isRadio4Or5) {
+        $('#nombre-equipier-traiteur').text('0'); // No catering staff needed for options 4 or 5
+    } else {
+        updateTeamMembers();
+    }
+    resetPricingCalculator();
+    updatePricesAndTotal(); // No need to pass isRadio4Or5 since we can check inside the function
+});
+
+function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
+
+    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
     console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
-    // Event time parsing and duration calculation
+    // Parse event time from the UI
     const eventTimeString = $('#data-text-item-check').text();
     const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
     const [startHour, startMinute] = startTime.split('h').map(Number);
@@ -199,37 +195,37 @@ function updatePricesAndTotal(isRadio4Or5Checked) { // Now accepts the state as 
 
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
+    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for overnight events
 
-    // Adjust security staff timing based on event start and end times
+    // Adjust security staff times based on event time
     let securityStartTime = eventStartHour < 18 ? 17.5 : eventStartHour - 0.5;
     let securityEndTime = eventEndHour + 0.5;
-    if (securityEndTime >= 24) securityEndTime -= 24; // Adjust if exceeds 24 hours
+    if (securityEndTime >= 24) securityEndTime -= 24;
 
-    // Calculate security presence hours
-    let securityPresenceHours = securityEndTime - securityStartTime;
-    if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
+    // Adjust regisseur times based on radio selection
+    let regisseurArrivalOffset = isRadio4Or5Checked ? -1 : -2; // 1 hour before for radio 4/5, 2 hours before otherwise
+    let regisseurDepartureOffset = 1; // 1 hour after for all scenarios
+
+    let regisseurArrivalTime = eventStartHour + regisseurArrivalOffset;
+    let regisseurDepartureTime = eventEndHour + regisseurDepartureOffset;
+    if (regisseurDepartureTime >= 24) regisseurDepartureTime -= 24; // Adjust if exceeds 24 hours
 
     // Define staff counts
     const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
-    // Cost constants
+    // Calculate staff costs with placeholders for actual values
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const SECURITY_STAFF_COST_PER_HOUR = 35;
     const REGISSEUR_COST_PER_HOUR = 40;
 
-    // Staff cost calculations
     const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + (isRadio4Or5Checked ? 2 : 3));
-    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * securityPresenceHours;
-    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (eventEndHour - eventStartHour + (isRadio4Or5Checked ? 2 : 3));
+    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * (securityEndTime - securityStartTime);
+    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (regisseurDepartureTime - regisseurArrivalTime);
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
-
-    // Additional logic for displaying messages and calculating other costs would continue here...
-
 
     // Constructing staff presence messages
     let securityMessage = numberOfSecurityStaff > 1 ? 
