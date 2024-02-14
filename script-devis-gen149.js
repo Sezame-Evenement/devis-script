@@ -13,12 +13,10 @@ function isEventAfter22h00(eventTimeString) {
 $(document).ready(function() {
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
-    console.log("Document ready");
 
     initialPriceTraiteurPerso = 120;
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso); // Set the initial UI element to 120
 
-    console.log(`Initial Price Traiteur Perso: ${initialPriceTraiteurPerso}`);
 
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
         console.log(`Radio button clicked: ${$(this).attr('class')}`);
@@ -109,7 +107,6 @@ function updateTeamMembers() {
     console.log("updateTeamMembers called");
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    console.log(`Is Radio 4 or 5 Checked: ${isRadio4Or5Checked}`);
 
 
     if (isRadio4Or5Checked) {
@@ -164,7 +161,6 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    console.log(`lol - Radio button clicked: ${$(this).attr('class')}`);
 
     let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
 
@@ -194,33 +190,31 @@ function formatTime(decimalTime) {
 
 
 function updatePricesAndTotal() {
+    console.log("Updating prices and total...");
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    console.log("Is radio 4 or 5 checked:", isRadio4Or5Checked);
 
-    // Parse event start and end times
     const eventTimeString = $('#data-text-item-check').text();
+    console.log("Event time string:", eventTimeString);
     const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
     const [startHour, startMinute] = startTime.split('h').map(Number);
     const [endHour, endMinute] = endTime.split('h').map(Number);
 
-    // Convert hours and minutes to decimal time
     let eventStartDecimal = startHour + startMinute / 60;
     let eventEndDecimal = endHour + endMinute / 60;
     if (eventEndDecimal < eventStartDecimal) eventEndDecimal += 24; // Adjust for events ending after midnight
+    console.log("Event start and end in decimal:", eventStartDecimal, eventEndDecimal);
 
-    // Default arrival and departure times for staff
-    let regisseurArrival, regisseurDeparture, cateringArrival, cateringDeparture, securityArrival, securityDeparture;
-
+    let regisseurArrival, regisseurDeparture;
     if (isRadio4Or5Checked) {
-        // For options 4 or 5
-        regisseurArrival = eventStartDecimal - 1; // Arrives 1 hour before
-        regisseurDeparture = eventEndDecimal + 1; // Leaves 1 hour after
-        // Catering staff are not present for options 4 and 5
-        cateringArrival = cateringDeparture = null;
+        regisseurArrival = eventStartDecimal - 1; // Arrives 1 hour before for options 4 and 5
+        console.log("Regisseur adjusted arrival time for options 4 or 5:", regisseurArrival);
     } else {
-        // For options 1, 2, or 3
-        regisseurArrival = cateringArrival = eventStartDecimal - 2; // Arrive 2 hours before
-        regisseurDeparture = cateringDeparture = eventEndDecimal + 1; // Leave 1 hour after
+        regisseurArrival = eventStartDecimal - 2; // Arrives 2 hours before for options 1, 2, or 3
+        console.log("Regisseur adjusted arrival time for options 1, 2, or 3:", regisseurArrival);
     }
+    regisseurDeparture = eventEndDecimal + 1; // Leaves 1 hour after for all options
+    console.log("Regisseur departure time:", regisseurDeparture);
 
     // Security staff timing logic
     if (isEventAfter22h00(eventTimeString)) {
@@ -234,6 +228,8 @@ function updatePricesAndTotal() {
 
     // Calculate the total hours for each staff category
     let regisseurHours = regisseurDeparture - regisseurArrival;
+    if (regisseurHours < 0) regisseurHours += 24; 
+    console.log("Regisseur working hours:", regisseurHours);
     let cateringHours = cateringDeparture - cateringArrival;
     let securityHours = securityDeparture - securityArrival;
 
@@ -251,10 +247,17 @@ function updatePricesAndTotal() {
     let totalStaffCost = regisseurCost + cateringCost + securityCost; // Only calculate if security staff are required
 
     // Construct the display messages
+    console.log("Regisseur cost calculation:", regisseurCost);
+
     let regisseurMessage = `Le staff regisseur sera présent de ${formatTime(regisseurArrival)} jusqu'à ${formatTime(regisseurDeparture)} pour un montant de ${regisseurCost.toFixed(2)}€ pour un total de ${regisseurHours.toFixed(2)} heures.`;
+    console.log("Regisseur message:", regisseurMessage);
+    $('#temps-staff-regisseur').text(regisseurMessage);
+
     let cateringMessage = `Le staff traiteur sera présent de ${formatTime(cateringArrival)} jusqu'à ${formatTime(cateringDeparture)} pour un montant de ${cateringCost.toFixed(2)}€ pour un total de ${cateringHours.toFixed(2)} heures.`;
     let securityMessage = `Le staff sécurité sera présent de ${formatTime(securityArrival)} jusqu'à ${formatTime(securityDeparture)} pour un montant de ${securityCost.toFixed(2)}€ pour un total de ${securityHours.toFixed(2)} heures.`;
 
+
+    
     // Update UI with the messages
     if (!isRadio4Or5Checked) { // Update only if catering staff are supposed to be present
         $('#temps-staff-traiteur').text(cateringMessage);
@@ -262,6 +265,8 @@ function updatePricesAndTotal() {
     $('#temps-staff-regisseur').text(regisseurMessage);
     if (securityArrival && securityDeparture) { // Update only if security timing is set
         $('#temps-staff-securite').text(securityMessage);
+
+
     }
 
 
