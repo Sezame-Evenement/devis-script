@@ -201,6 +201,27 @@ function updatePricesAndTotal() {
     constructAndDisplayMessages(securityDetails, staffCosts);
 
 
+// Utility function to parse and adjust event start and end times
+function parseEventTime(eventTimeString) {
+    const parts = eventTimeString.split(' au ').map(part => {
+        const splitPart = part.split('à');
+        return splitPart.length > 1 ? splitPart[1].trim() : undefined;
+    });
+
+    if (parts[0] === undefined || parts[1] === undefined) {
+        console.error('parseEventTime: Invalid format', eventTimeString);
+        return { startTime: undefined, endTime: undefined };
+    }
+
+    const [startHour, startMinute] = parts[0].split('h').map(Number);
+    const [endHour, endMinute] = parts[1].split('h').map(Number);
+
+    let startTime = startHour + startMinute / 60;
+    let endTime = endHour + endMinute / 60;
+    if (endTime < startTime) endTime += 24; // Adjust for events ending after midnight
+
+    return { startTime, endTime };
+}
 
 
 // Determine if event is outside normal hours (before 6am or after 6pm)
