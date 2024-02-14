@@ -240,6 +240,9 @@ function updatePricesAndTotal() {
     let cateringCost = cateringHours ? cateringHours * cateringRate : 0; // Only calculate if catering staff are present
     let securityCost = securityHours ? securityHours * securityRate : 0; // Only calculate if security staff are required
 
+    // Here we define totalStaffCost by summing up individual staff costs
+    let totalStaffCost = regisseurCost + cateringCost + securityCost; // Only calculate if security staff are required
+
     // Construct the display messages
     let regisseurMessage = `Le staff regisseur sera présent de ${formatTime(regisseurArrival)} jusqu'à ${formatTime(regisseurDeparture)} pour un montant de ${regisseurCost.toFixed(2)}€ pour un total de ${regisseurHours.toFixed(2)} heures.`;
     let cateringMessage = `Le staff traiteur sera présent de ${formatTime(cateringArrival)} jusqu'à ${formatTime(cateringDeparture)} pour un montant de ${cateringCost.toFixed(2)}€ pour un total de ${cateringHours.toFixed(2)} heures.`;
