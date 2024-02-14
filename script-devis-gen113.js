@@ -171,7 +171,6 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     resetPricingCalculator();
 });
 
-
 function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
 
@@ -185,43 +184,43 @@ function updatePricesAndTotal() {
 
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
+    if (eventEndHour < eventStartHour) {
+        eventEndHour += 24; // Adjust for events ending after midnight
+    }
 
-    // Determine if security is needed based on event time
-    let securityNeeded = (eventStartHour >= 22 || eventStartHour <= 6) || (eventEndHour > 22 || eventEndHour < 6);
-
-    // Calculate security staff arrival time
-    let securityArrivalTime;
+    // Determine security staff requirements based on event timing
+    let securityNeeded = (eventStartHour >= 22 || eventEndHour <= 6 || (eventStartHour <= 6 && eventEndHour >= 22) || eventStartHour < 18);
+    let securityStartTime;
     if (eventStartHour < 18) {
-        securityArrivalTime = 17.5; // Security arrives at 17:30 if event starts before 18h00
+        securityStartTime = 17.5; // Security arrives at 17:30 if event starts before 18h00
     } else {
-        securityArrivalTime = eventStartHour - 0.5; // They arrive 30 min before the event starts if after 18h00
+        securityStartTime = eventStartHour - 0.5; // Security arrives 30 minutes before the event starts if after 18h00
     }
 
-    // Ensure security presence for the entire event duration if needed
-    let securityPresenceHours;
-    if (securityNeeded) {
-        let securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
-        securityPresenceHours = securityEndTime - securityArrivalTime;
-        if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
-    } else {
-        securityPresenceHours = 0; // No security needed
+    let securityPresenceHours = securityNeeded ? (eventEndHour + 0.5 - securityStartTime) : 0;
+    if (securityPresenceHours < 0) {
+        securityPresenceHours += 24; // Adjust if spans past midnight
     }
 
-    // Define staff counts
+    // Define staff counts based on radio selections and calculated needs
     const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
-    const numberOfSecurityStaff = Number($('#nombre-securite').text());
+    const numberOfSecurityStaff = securityNeeded ? Number($('#nombre-securite').text()) : 0;
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
+    // Assuming cost constants are defined elsewhere
+    const YOUR_DEFAULT_CATERING_STAFF_COST = 35; // Placeholder, adjust as necessary
+    const SECURITY_STAFF_COST_PER_HOUR = 35; // Placeholder, adjust as necessary
+    const REGISSEUR_COST_PER_HOUR = 40; // Placeholder, adjust as necessary
+
     // Calculate staff costs
-    const YOUR_DEFAULT_CATERING_STAFF_COST = 35; // Ensure this value is correctly set according to your application
-    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + 3); // Catering staff hours
-    const securityStaffCost = numberOfSecurityStaff * 35 * securityPresenceHours; // Assuming $35/hour for security
-    const regisseurCost = numberOfRegisseurs * 40 * (eventEndHour - eventStartHour + 3); // Assuming $40/hour for régisseur
+    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + 3);
+    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * securityPresenceHours;
+    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (eventEndHour - eventStartHour + 3);
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
 
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
+
 
 
 
