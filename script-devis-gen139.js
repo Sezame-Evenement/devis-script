@@ -159,11 +159,16 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 
-// Utility function to format times for display
-function formatTime(hourDecimal) {
-    const hours = Math.floor(hourDecimal);
-    const minutes = Math.round((hourDecimal - hours) * 60);
-    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+function parseEventTime(eventTimeString) {
+    const [startPart, endPart] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
+    const [startHour, startMinute] = startPart.split('h').map(Number);
+    const [endHour, endMinute] = endPart.split('h').map(Number);
+
+    let startTime = startHour + startMinute / 60;
+    let endTime = endHour + endMinute / 60;
+    if (endTime < startTime) endTime += 24; // Adjust for events ending after midnight
+
+    return { startTime, endTime };
 }
 
 
@@ -196,18 +201,7 @@ function updatePricesAndTotal() {
     constructAndDisplayMessages(securityDetails, staffCosts);
 
 
-// Utility function to parse and adjust event start and end times
-function parseEventTime(eventTimeString) {
-    const [startPart, endPart] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
-    const [startHour, startMinute] = startPart.split('h').map(Number);
-    const [endHour, endMinute] = endPart.split('h').map(Number);
 
-    let startTime = startHour + startMinute / 60;
-    let endTime = endHour + endMinute / 60;
-    if (endTime < startTime) endTime += 24; // Adjust for events ending after midnight
-
-    return { startTime, endTime };
-}
 
 // Determine if event is outside normal hours (before 6am or after 6pm)
 function isEventOutsideNormalHours(startTime, endTime) {
@@ -275,7 +269,12 @@ function constructAndDisplayMessages(securityDetails, staffCosts) {
     $('#temps-regisseur').text(regisseurMessage);
 }
 
-
+// Utility function to format times for display
+function formatTime(hourDecimal) {
+    const hours = Math.floor(hourDecimal);
+    const minutes = Math.round((hourDecimal - hours) * 60);
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
 
 
 
