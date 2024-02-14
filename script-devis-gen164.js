@@ -1,7 +1,7 @@
 $(document).ready(function() {
     let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
     let initialPriceTraiteurPerso = 120;
-    let YOUR_DEFAULT_CATERING_STAFF_COST = 35;
+    let YOUR_DEFAULT_CATERING_STAFF_COST = 35; // Declare this variable globally
     let costPerCateringStaff = YOUR_DEFAULT_CATERING_STAFF_COST;
 
     $('#nb-personnes-final-2').val($('#nb-personnes-final-2').attr('data'));
