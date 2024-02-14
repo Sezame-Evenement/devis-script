@@ -169,7 +169,8 @@ function formatTime(time) {
 }
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    console.log(`Radio button clicked: ${$(this).attr('class')}`);
+    console.log(`lol - Radio button clicked: ${$(this).attr('class')}`);
+
     let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
 
     if (isRadio4Or5) {
