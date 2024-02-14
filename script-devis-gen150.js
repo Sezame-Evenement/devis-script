@@ -190,58 +190,67 @@ function formatTime(decimalTime) {
 
 
 function updatePricesAndTotal() {
-    console.log("Updating prices and total...");
+    console.log("Starting updatePricesAndTotal function...");
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    console.log("Is radio 4 or 5 checked:", isRadio4Or5Checked);
+    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
+    // Parse event time string
     const eventTimeString = $('#data-text-item-check').text();
-    console.log("Event time string:", eventTimeString);
     const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
     const [startHour, startMinute] = startTime.split('h').map(Number);
     const [endHour, endMinute] = endTime.split('h').map(Number);
 
+    // Convert to decimal hours
     let eventStartDecimal = startHour + startMinute / 60;
     let eventEndDecimal = endHour + endMinute / 60;
-    if (eventEndDecimal < eventStartDecimal) eventEndDecimal += 24; // Adjust for events ending after midnight
-    console.log("Event start and end in decimal:", eventStartDecimal, eventEndDecimal);
+    if (eventEndDecimal < eventStartDecimal) eventEndDecimal += 24; // Adjust for next day
 
-    let regisseurArrival, regisseurDeparture;
-    if (isRadio4Or5Checked) {
-        regisseurArrival = eventStartDecimal - 1; // Arrives 1 hour before for options 4 and 5
-        console.log("Regisseur adjusted arrival time for options 4 or 5:", regisseurArrival);
-    } else {
-        regisseurArrival = eventStartDecimal - 2; // Arrives 2 hours before for options 1, 2, or 3
-        console.log("Regisseur adjusted arrival time for options 1, 2, or 3:", regisseurArrival);
-    }
-    regisseurDeparture = eventEndDecimal + 1; // Leaves 1 hour after for all options
-    console.log("Regisseur departure time:", regisseurDeparture);
+    console.log(`Event starts at ${eventStartDecimal} and ends at ${eventEndDecimal}`);
 
-    // Security staff timing logic
-    if (isEventAfter22h00(eventTimeString)) {
-        // If the event starts at or after 18h00 or it's after 22h00
-        securityArrival = eventStartDecimal >= 18 ? eventStartDecimal - 0.5 : 17.5; // If event starts after 18h00, arrive 30 mins before, otherwise at 17:30
-        securityDeparture = eventEndDecimal + 0.5; // Leaves 30 mins after
-    } else {
-        // Default security timing for events not specifically after 22h00
-        securityArrival = securityDeparture = null; // Adjust based on your event logic
+    // Initialize staff arrival and departure times
+    let regisseurArrival, regisseurDeparture, cateringArrival, cateringDeparture, securityArrival, securityDeparture;
+
+    // Adjust based on selected radio button
+    regisseurArrival = eventStartDecimal - (isRadio4Or5Checked ? 1 : 2);
+    regisseurDeparture = eventEndDecimal + 1;
+    console.log(`Regisseur arrival: ${regisseurArrival}, departure: ${regisseurDeparture}`);
+
+    if (!isRadio4Or5Checked) {
+        cateringArrival = eventStartDecimal - 2;
+        cateringDeparture = eventEndDecimal + 1;
+        console.log(`Catering arrival: ${cateringArrival}, departure: ${cateringDeparture}`);
     }
 
-    // Calculate the total hours for each staff category
-    let regisseurHours = regisseurDeparture - regisseurArrival;
-    if (regisseurHours < 0) regisseurHours += 24; 
-    console.log("Regisseur working hours:", regisseurHours);
-    let cateringHours = cateringDeparture - cateringArrival;
-    let securityHours = securityDeparture - securityArrival;
+    // Security staff timing logic (simplified for demonstration)
+    securityArrival = eventStartDecimal >= 18 || isEventAfter22h00(eventTimeString) ? eventStartDecimal - 0.5 : 17.5;
+    securityDeparture = eventEndDecimal + 0.5;
+    console.log(`Security arrival: ${securityArrival}, departure: ${securityDeparture}`);
 
-    // Placeholder for staff hourly rates (assume these are predefined somewhere in your script)
-    const regisseurRate = 40; // Example rate
-    const cateringRate = 35; // Example rate
-    const securityRate = 30; // Example rate
+    // Ensure variables are calculated even if not used to prevent errors
+    cateringArrival = cateringArrival || 0;
+    cateringDeparture = cateringDeparture || 0;
+    securityArrival = securityArrival || 0;
+    securityDeparture = securityDeparture || 0;
 
-    // Calculate total costs for each staff category
+    // Calculate working hours, ensuring no negative values
+    let regisseurHours = Math.max(0, regisseurDeparture - regisseurArrival);
+    let cateringHours = isRadio4Or5Checked ? 0 : Math.max(0, cateringDeparture - cateringArrival);
+    let securityHours = Math.max(0, securityDeparture - securityArrival);
+
+    console.log(`Working hours - Regisseur: ${regisseurHours}, Catering: ${cateringHours}, Security: ${securityHours}`);
+
+    // Calculate staff costs based on predefined rates
+    const regisseurRate = 40; // Example hourly rate
+    const cateringRate = 35; // Example hourly rate
+    const securityRate = 30; // Example hourly rate
+
     let regisseurCost = regisseurHours * regisseurRate;
-    let cateringCost = cateringHours ? cateringHours * cateringRate : 0; // Only calculate if catering staff are present
-    let securityCost = securityHours ? securityHours * securityRate : 0; // Only calculate if security staff are required
+    let cateringCost = cateringHours * cateringRate;
+    let securityCost = securityHours * securityRate;
+
+    console.log(`Staff costs - Regisseur: ${regisseurCost}, Catering: ${cateringCost}, Security: ${securityCost}`);
+
+
 
     // Here we define totalStaffCost by summing up individual staff costs
     let totalStaffCost = regisseurCost + cateringCost + securityCost; // Only calculate if security staff are required
