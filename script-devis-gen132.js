@@ -206,6 +206,24 @@ function updatePricesAndTotal() {
     let securityStartTime;
     let securityEndTime;
 
+    // Adjust regisseur arrival and departure times based on selection
+let regisseurArrivalHour, regisseurDepartureHour;
+if (isRadio4Or5Checked) {
+  // For radio buttons 4 or 5: Regisseur arrives 1 hour before and departs 1 hour after
+  regisseurArrivalHour = eventStartHour - 1;
+  regisseurDepartureHour = eventEndHour + 1;
+} else {
+  // For other radio buttons: Use your existing default logic (e.g., arrive 2 hours before, depart 1 hour after)
+  regisseurArrivalHour = eventStartHour - 2;
+  regisseurDepartureHour = eventEndHour + 1;
+}
+
+// Calculate regisseur presence hours
+let regisseurPresenceHours = regisseurDepartureHour - regisseurArrivalHour;
+if (regisseurPresenceHours < 0) {
+  regisseurPresenceHours += 24; // Adjust if spans past midnight
+}
+
     // Security timing logic
     if (eventStartHour >= 6 && eventStartHour < 18) {
         // For events starting between 6h to 18h, security arrives at 17:30
