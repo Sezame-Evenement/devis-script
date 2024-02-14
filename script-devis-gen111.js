@@ -284,10 +284,13 @@ $('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
 $('.hack42-send-value').val(totalHT.toFixed(2));
 }
 
-function formatTime(time) {
-    let hour = Math.floor(time);
-    let minute = Math.floor((time % 1) * 60);
-    return `${hour.toString().padStart(2, '0')}h${minute.toString().padStart(2, '0')}`;
+function formatTime(hour) {
+    // Ensure hour falls within a 24-hour range
+    let adjustedHour = hour % 24;
+    let hourPart = Math.floor(adjustedHour);
+    let minutePart = Math.floor((adjustedHour - hourPart) * 60);
+    // Format the hour and minute parts to ensure two digits
+    return `${hourPart.toString().padStart(2, '0')}h${minutePart.toString().padStart(2, '0')}`;
 }
 
 
