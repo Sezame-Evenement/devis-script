@@ -187,16 +187,26 @@ function updatePricesAndTotal() {
     let eventEndHour = endHour + endMinute / 60;
     if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
-    // Adjust security staff start time based on event start time
-    let securityStartTime = (startHour < 18) ? 17.5 : eventStartHour - 0.5;
-    if (securityStartTime < 0) securityStartTime += 24; // Normalize for events starting late
+    // Determine if security is needed based on event time
+    let securityNeeded = (eventStartHour >= 22 || eventStartHour <= 6) || (eventEndHour > 22 || eventEndHour < 6);
 
-    let securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
-    if (securityEndTime >= 24) securityEndTime -= 24; // Adjust if exceeds 24 hours
+    // Calculate security staff arrival time
+    let securityArrivalTime;
+    if (eventStartHour < 18) {
+        securityArrivalTime = 17.5; // Security arrives at 17:30 if event starts before 18h00
+    } else {
+        securityArrivalTime = eventStartHour - 0.5; // They arrive 30 min before the event starts if after 18h00
+    }
 
-    // Calculate the presence hours of security staff
-    let securityPresenceHours = securityEndTime - securityStartTime;
-    if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
+    // Ensure security presence for the entire event duration if needed
+    let securityPresenceHours;
+    if (securityNeeded) {
+        let securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
+        securityPresenceHours = securityEndTime - securityArrivalTime;
+        if (securityPresenceHours < 0) securityPresenceHours += 24; // Adjust if spans past midnight
+    } else {
+        securityPresenceHours = 0; // No security needed
+    }
 
     // Define staff counts
     const numberOfCateringStaff = isRadio4Or5Checked ? 0 : Number($('#nombre-equipier-traiteur').text());
