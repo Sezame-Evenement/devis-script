@@ -169,8 +169,7 @@ function formatTime(time) {
 }
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    console.log(`lol - Radio button clicked: ${$(this).attr('class')}`);
-
+    console.log(`Radio button clicked: ${$(this).attr('class')}`);
     let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
 
     if (isRadio4Or5) {
@@ -183,12 +182,10 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 });
 
 function updatePricesAndTotal() {
-    console.log("Checking radio button states before isRadio4Or5Checked:");
-    console.log("Radio 4 checked state:", $('.ms-radio-button-tab-is-4').prop('checked'));
-    console.log("Radio 5 checked state:", $('.ms-radio-button-tab-is-5').prop('checked'));
+    console.log("updatePricesAndTotal called");
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
+        console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
     
     // Event time parsing and duration calculation
@@ -205,24 +202,6 @@ function updatePricesAndTotal() {
     let securityNeeded = (eventStartHour >= 18 && eventStartHour <= 6) || (eventEndHour >= 18 || eventEndHour <= 6);
     let securityStartTime;
     let securityEndTime;
-
-    // Adjust regisseur arrival and departure times based on selection
-let regisseurArrivalHour, regisseurDepartureHour;
-if (isRadio4Or5Checked) {
-  // For radio buttons 4 or 5: Regisseur arrives 1 hour before and departs 1 hour after
-  regisseurArrivalHour = eventStartHour - 1;
-  regisseurDepartureHour = eventEndHour + 1;
-} else {
-  // For other radio buttons: Use your existing default logic (e.g., arrive 2 hours before, depart 1 hour after)
-  regisseurArrivalHour = eventStartHour - 2;
-  regisseurDepartureHour = eventEndHour + 1;
-}
-
-// Calculate regisseur presence hours
-let regisseurPresenceHours = regisseurDepartureHour - regisseurArrivalHour;
-if (regisseurPresenceHours < 0) {
-  regisseurPresenceHours += 24; // Adjust if spans past midnight
-}
 
     // Security timing logic
     if (eventStartHour >= 6 && eventStartHour < 18) {
