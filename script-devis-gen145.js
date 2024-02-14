@@ -179,6 +179,12 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 
 
+function formatTime(time) {
+    const hours = Math.floor(time);
+    const minutes = Math.round((time - hours) * 60);
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
+
 
 function updatePricesAndTotal() {
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
