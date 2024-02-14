@@ -183,6 +183,8 @@ function updatePricesAndTotal() {
 
     // Check which radio button is selected
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
+
     
     // Parse event time from the UI
     const eventTimeString = $('#data-text-item-check').text();
