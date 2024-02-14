@@ -159,21 +159,27 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 
-$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    console.log(`Radio button clicked: ${$(this).attr('class')}`);
-    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+$(document).ready(function() {
+    // Click event handler for radio buttons
+    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+        // Determine if radio 4 or 5 is checked
+        let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4').is(':checked') || $('.ms-radio-button-tab-is-5').is(':checked');
+        console.log(`Radio button clicked: ${$(this).attr('class')}`);
+        console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
-    // Adjusting staff members based on the selection
-    if (isRadio4Or5) {
-        $('#nombre-equipier-traiteur').text('0');
-    } else {
-        updateTeamMembers();
-    }
-    resetPricingCalculator();
+        // Make adjustments based on the radio button clicked
+        if (isRadio4Or5Checked) {
+            $('#nombre-equipier-traiteur').text('0');
+        } else {
+            // Call updateTeamMembers() if it's necessary for your logic
+            updateTeamMembers();
+        }
 
-    // Directly call updatePricesAndTotal with the state of radio 4 or 5
-    updatePricesAndTotal(isRadio4Or5);
+        // Call updatePricesAndTotal with the correct state
+        updatePricesAndTotal(isRadio4Or5Checked);
+    });
 });
+
 
 function formatTime(time) {
     let hours = Math.floor(time);
