@@ -178,16 +178,22 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
         updateTeamMembers();
     }
     resetPricingCalculator();
-    updatePricesAndTotal(); // No need to pass isRadio4Or5 since we can check inside the function
+    updatePricesAndTotal(); // Adjust the function to consider the state of radio 4 or 5
 });
+
+function formatTime(time) {
+    let hours = Math.floor(time);
+    let minutes = Math.round((time - hours) * 60);
+    hours = hours % 24; // Correctly wrap hours exceeding 24 into a 24-hour format
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
 
 function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-        console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
+    console.log("Radio 4 or 5 checked:", isRadio4Or5Checked);
 
-    
     // Event time parsing and duration calculation
     const eventTimeString = $('#data-text-item-check').text();
     const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
@@ -198,21 +204,18 @@ function updatePricesAndTotal() {
     let eventEndHour = endHour + endMinute / 60;
     if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
+    // Adjust the régisseur's arrival and departure times based on radio selection
+    let regisseurArrivalOffset = isRadio4Or5Checked ? -1 : -2; // 1 hour before for 4/5, otherwise 2 hours
+    let regisseurDepartureOffset = 1; // 1 hour after for all options
+
+    let regisseurArrivalTime = eventStartHour + regisseurArrivalOffset;
+    let regisseurDepartureTime = eventEndHour + regisseurDepartureOffset;
+    if (regisseurDepartureTime >= 24) regisseurDepartureTime -= 24; // Adjust if it exceeds 24 hours
+
     // Determine security staff requirements based on event timing
-    let securityNeeded = (eventStartHour >= 18 && eventStartHour <= 6) || (eventEndHour >= 18 || eventEndHour <= 6);
-    let securityStartTime;
-    let securityEndTime;
-
-    // Security timing logic
-    if (eventStartHour >= 6 && eventStartHour < 18) {
-        // For events starting between 6h to 18h, security arrives at 17:30
-        securityStartTime = 17.5;
-    } else {
-        // For events starting at or after 18h00 and before 6h00, security arrives 30 minutes before
-        securityStartTime = eventStartHour - 0.5;
-    }
-
-    securityEndTime = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
+    let securityNeeded = (eventStartHour >= 22 || eventEndHour <= 6 || (eventStartHour <= 6 && eventEndHour >= 22) || eventStartHour < 18);
+    let securityStartTime = eventStartHour < 18 ? 17.5 : eventStartHour - 0.5; // Arrive at 17:30 or 30 mins before event
+    let securityEndTime = eventEndHour + 0.5; // Leave 30 mins after event
     if (securityEndTime >= 24) securityEndTime -= 24; // Adjust if exceeds 24 hours
 
     // Security presence hours calculation
@@ -230,25 +233,20 @@ function updatePricesAndTotal() {
     const REGISSEUR_COST_PER_HOUR = 40;
 
     // Staff cost calculations
-    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + 3);
-    const securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * securityPresenceHours;
-    const regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (eventEndHour - eventStartHour + 3);
+    let cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + (isRadio4Or5Checked ? 2 : 3));
+    let securityStaffCost = numberOfSecurityStaff * SECURITY_STAFF_COST_PER_HOUR * securityPresenceHours;
+    let regisseurCost = numberOfRegisseurs * REGISSEUR_COST_PER_HOUR * (regisseurDepartureTime - regisseurArrivalTime);
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
 
     // Constructing staff presence messages
-    let securityMessage = numberOfSecurityStaff > 1 ? 
-        `Les agent(es) de sécurité seront présents de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€` :
-        `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de 35€/h soit ${securityStaffCost.toFixed(2)}€`;
+    let securityMessage = `L'agent(e) de sécurité sera présent de ${formatTime(securityStartTime)} jusqu'à ${formatTime(securityEndTime)} pour un montant de ${SECURITY_STAFF_COST_PER_HOUR}€/h soit ${securityStaffCost.toFixed(2)}€.`;
+    let cateringMessage = `Le staff traiteur sera présent de ${formatTime(eventStartHour - (isRadio4Or5Checked ? 1 : 2))} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}€/h soit ${cateringStaffCost.toFixed(2)}€.`;
+    let regisseurMessage = `Le régisseur ou la régisseuse sera présent(e) de ${formatTime(regisseurArrivalTime)} jusqu'à ${formatTime(regisseurDepartureTime)} pour un montant de ${REGISSEUR_COST_PER_HOUR}€/h soit ${regisseurCost.toFixed(2)}€.`;
 
-    let cateringMessage = `Le staff traiteur sera présent de ${formatTime(eventStartHour - 2)} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de ${YOUR_DEFAULT_CATERING_STAFF_COST}€/h soit ${cateringStaffCost.toFixed(2)}€`;
-
-    let regisseurMessage = `Le régisseur ou la régisseuse sera présent(e) de ${formatTime(eventStartHour - 2)} jusqu'à ${formatTime(eventEndHour + 1)} pour un montant de 40€/h soit ${regisseurCost.toFixed(2)}€`;
-
-
-    // Conditionally display messages based on staff presence
-    if (numberOfSecurityStaff > 0) {
+     // Conditionally display messages based on staff presence
+     if (numberOfSecurityStaff > 0) {
         $('#temps-staff-securite').text(securityMessage);
     } else if (!isEventAfter22h00(eventTimeString)) {
         $('#temps-staff-securite').text(''); // Hide or clear message if security not needed
@@ -259,6 +257,7 @@ function updatePricesAndTotal() {
     }
     
     $('#temps-regisseur').text(regisseurMessage);
+
 
    
  // Item and meal cost calculations
