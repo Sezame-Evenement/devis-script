@@ -172,21 +172,18 @@ $('input[name="Choix-traiteur"]').change(function() {
 
     if (isRadio4Or5Selected) {
         $('#nombre-equipier-traiteur').text('0'); // Catering staff not required for radio 4 or 5
-        // Apply additional logic for radio 4 or 5 if needed
     } else if (isRadio1To3Selected) {
-        // Apply logic for radio 1, 2, or 3
         updateTeamMembers(); // Assuming this function adjusts team members accordingly
     }
     resetPricingCalculator(); // Assuming this resets the calculator as needed
+    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected); // Pass the flags to updatePricesAndTotal
 });
 
-function updatePricesAndTotal() {
+// Adjusted updatePricesAndTotal to accept the selection flags as arguments
+function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     console.log("updatePricesAndTotal called");
-    let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
-    let isRadio1To3Checked = $('.ms-radio-button-tab-is-1:checked, .ms-radio-button-tab-is-2:checked, .ms-radio-button-tab-is-3:checked').length > 0;
-    
-    console.log(`Radio 4 or 5 checked: ${isRadio4Or5Checked}`);
-    console.log(`Radio 1, 2, or 3 checked: ${isRadio1To3Checked}`);
+    console.log(`Radio 4 or 5 selected: ${isRadio4Or5Selected}`);
+    console.log(`Radio 1, 2, or 3 selected: ${isRadio1To3Selected}`);
     
     // Event time parsing and duration calculation
     const eventTimeString = $('#data-text-item-check').text();
@@ -200,8 +197,8 @@ function updatePricesAndTotal() {
     console.log(`Event starts at ${startHour}h${startMinute} and ends at ${endHour}h${endMinute}`);
     
     // Adjust staff times based on the scenario
-    const securityStartTimeAdjust = (startHour < 18) ? (17 + 30 / 60) : eventStartHour - 0.5; // Security arrives 30 mins before or at 17:30 if event starts before 18h
-    const securityEndTimeAdjust = eventEndHour + 0.5; // Security leaves 30 minutes after event ends
+    const securityStartTimeAdjust = (startHour < 18) ? (17 + 30 / 60) : eventStartHour - 0.5;
+    const securityEndTimeAdjust = eventEndHour + 0.5;
     const securityPresenceHours = securityEndTimeAdjust - securityStartTimeAdjust;
     
     // Define staff counts and log them
@@ -213,10 +210,10 @@ function updatePricesAndTotal() {
     console.log(`Number of Security Staff: ${numberOfSecurityStaff}`);
     console.log(`Number of Regisseurs: ${numberOfRegisseurs}`);
     
-    // Calculate staff costs with adjusted times for catering and régisseur based on radio selection
-    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + (isRadio1To3Checked ? 3 : 0)); // Adjusted for arrival and departure
+    // Calculate staff costs with adjusted times for catering and régisseur based on the flags
+    const cateringStaffCost = numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (eventEndHour - eventStartHour + (isRadio1To3Selected ? 3 : 0));
     const securityStaffCost = numberOfSecurityStaff * 35 * securityPresenceHours;
-    const regisseurCost = numberOfRegisseurs * 40 * (eventEndHour - eventStartHour + (isRadio1To3Checked ? 3 : 2)); // Adjusted for arrival and departure
+    const regisseurCost = numberOfRegisseurs * 40 * (eventEndHour - eventStartHour + (isRadio1To3Selected ? 3 : 2));
 
     console.log(`Catering Staff Cost: ${cateringStaffCost}`);
     console.log(`Security Staff Cost: ${securityStaffCost}`);
@@ -225,7 +222,6 @@ function updatePricesAndTotal() {
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
     console.log(`Total Staff Cost: ${totalStaffCost}`);
-
 
 
 
