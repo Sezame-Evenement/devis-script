@@ -11,6 +11,12 @@ function isEventAfter22h00(eventTimeString) {
 
 
 $(document).ready(function() {
+    if ($('input[name="Choix-traiteur"]:checked').length === 0) {
+        // If no radio button is selected by default, manually select Radio 1 and trigger change
+        $('#Traiteur-n-1').prop('checked', true);
+    }
+    // Now trigger change to ensure the page loads with the correct settings
+    $('input[name="Choix-traiteur"]:checked').change();
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
     console.log("Document ready");
