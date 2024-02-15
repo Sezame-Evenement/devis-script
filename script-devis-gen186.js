@@ -210,18 +210,7 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     $('#total-staff').text((cateringStaffCost + securityStaffCost + regisseurCost).toFixed(2).replace('.', ','));
 
 
-    // Conditionally display messages based on staff presence
-    if (numberOfSecurityStaff > 0) {
-        $('#temps-staff-securite').text(securityMessage);
-    } else if (!isEventAfter22h00(eventTimeString)) {
-        $('#temps-staff-securite').text(''); // Hide or clear message if security not needed
-    }
-    
-    if (numberOfCateringStaff > 0) {
-        $('#temps-staff-traiteur').text(cateringMessage);
-    }
-    
-    $('#temps-regisseur').text(regisseurMessage);
+  
 
    
  // Item and meal cost calculations
