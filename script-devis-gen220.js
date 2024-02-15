@@ -53,10 +53,15 @@ $(document).ready(function() {
 
 function triggerUpdatePricesAndTotal() {
     let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
+    console.log(`Selected Traiteur Value: ${selectedValue}`); // Debugging log
+
     let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
     let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
+    console.log(`isRadio4Or5Selected: ${isRadio4Or5Selected}, isRadio1To3Selected: ${isRadio1To3Selected}`); // Debugging log
+
     updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
 }
+
 
 function updateSecurityStaffBasedOnEventTime(eventTimeString) {
     console.log(`updateSecurityStaffBasedOnEventTime: ${eventTimeString}`);
@@ -243,7 +248,6 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     $('#total-staff').text((cateringStaffCost + securityStaffCost + regisseurCost).toFixed(2).replace('.', ','));
 
 
-
   
 
    
@@ -339,19 +343,24 @@ function resetPricingCalculator() {
     $('.price-specialite, .price-petitdejeuner, .price-dejeuner, .price-pause, .price-diner').text('0.00');
     $('.price-salle').text(initialPriceSalle);
     $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
-    $('.total-ht, .total-ttc, .price-tva').text(initialPriceSalle);
-    $('.hack42-send-value').val(initialPriceSalle);
-    if ($('.ms-radio-button-tab-is-4').prop('checked') || $('.ms-radio-button-tab-is-5').prop('checked')) {
-        $('#nombre-equipier-traiteur').text('0');
-        console.log("Resetting pricing calculator: Catering and Security staff maintained at 0 for radio 4 or 5"); 
-    }
-    updatePricesAndTotal();}
+    $('.total-ht, .total-ttc, .price-tva').text('0.00'); // Assuming you want to reset these to zero
+    $('.hack42-send-value').val('0.00'); // Assuming you want to reset this to zero as well
+
+    let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
+    let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
+    let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
+    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
+}
+
 
 $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').click(function() {
-    updatePricesAndTotal();});
+    triggerUpdatePricesAndTotal(); // Assuming you have a function to determine the state and call updatePricesAndTotal
+});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal();});
+    triggerUpdatePricesAndTotal(); // Using the same assumed trigger function
+});
+
 
 var Webflow = Webflow || [];
 Webflow.push(function() {
@@ -393,8 +402,17 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
-    updatePricesAndTotal();});
+    let isRadio4Or5Selected = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
+    let isRadio1To3Selected = !isRadio4Or5Selected; // Since clicking 4 or 5 means 1 to 3 are not selected
+    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
+});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal();});
+    // For these, you need to reassess the radio button state each time
+    let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
+    let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
+    let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
+    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
+});
+
 
