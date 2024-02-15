@@ -1,18 +1,13 @@
 function isEventAfter22h00(eventTimeString) {
     const parts = eventTimeString.split(' au ');
     const endTimeString = parts.length > 1 ? parts[1] : '';
-    if (endTimeString === '') {
-        console.error('isEventAfter22h00: Invalid eventTimeString, cannot determine end time.');
-        return false; // Or handle this case as appropriate for your application
-    }
-    const timePart = endTimeString.split('à')[1].trim();
+    const timePart = endTimeString.split('à')[1].trim(); 
     const [hours, minutes] = timePart.split('h').map(Number);
 
     console.log(`isEventAfter22h00: Event ends at ${hours}h${minutes}`);
 
     return hours >= 22 || (hours < 6 && hours >= 0);
 }
-
 
 
 $(document).ready(function() {
@@ -45,13 +40,15 @@ $(document).ready(function() {
     $('#nb-personnes-final-2').on('input', function() {
         console.log("Number of attendees changed");
         updateTeamMembers();
-        updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);    });
+        updatePricesAndTotal();
+    });
 
     const eventTimeString = $('#data-text-item-check').text();
     console.log(`Event Time String: ${eventTimeString}`);
     updateSecurityStaffBasedOnEventTime(eventTimeString);
     updateTeamMembers();
-    updatePricesAndTotal();});
+    updatePricesAndTotal();
+});
 
 function updateSecurityStaffBasedOnEventTime(eventTimeString) {
     console.log(`updateSecurityStaffBasedOnEventTime: ${eventTimeString}`);
@@ -323,13 +320,16 @@ function resetPricingCalculator() {
         $('#nombre-equipier-traiteur').text('0');
         console.log("Resetting pricing calculator: Catering and Security staff maintained at 0 for radio 4 or 5"); 
     }
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);}
+    updatePricesAndTotal();
+}
 
 $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').click(function() {
-    updatePricesAndTotal();});
+    updatePricesAndTotal();
+});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal();});
+    updatePricesAndTotal();
+});
 
 var Webflow = Webflow || [];
 Webflow.push(function() {
@@ -371,8 +371,10 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
-    updatePricesAndTotal();});
+    updatePricesAndTotal();
+});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal();});
+    updatePricesAndTotal();
+});
 
