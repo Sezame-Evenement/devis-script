@@ -290,8 +290,8 @@ $('.hack42-send-value').val(totalHT.toFixed(2));
 }
 
 function formatTime(time) {
-    let hours = Math.floor(time);
-    let minutes = Math.floor((time - hours) * 60);
+    let hours = Math.floor(time) % 24; // Wrap around if hours exceed 24
+    let minutes = Math.floor((time - Math.floor(time)) * 60);
     return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
 }
 
