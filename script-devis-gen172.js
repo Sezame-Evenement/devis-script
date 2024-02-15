@@ -9,28 +9,6 @@ function isEventAfter22h00(eventTimeString) {
     return hours >= 22 || (hours < 6 && hours >= 0);
 }
 
-function parseEventTimes(eventTimeString) {
-    const parts = eventTimeString.split(' au ');
-    const startTimeString = parts[0];
-    const endTimeString = parts.length > 1 ? parts[1] : '';
-    
-    // Extract start time
-    const start = startTimeString.split('à')[1].trim();
-    const [startHours, startMinutes] = start.split('h').map(Number);
-
-    // Extract end time
-    const end = endTimeString.split('à')[1].trim();
-    const [endHours, endMinutes] = end.split('h').map(Number);
-
-    // Determine if event ends after 22h00 or before 06h00
-    const isEventAfter22h00 = endHours >= 22 || (endHours < 6 && endHours >= 0);
-
-    console.log(`Event starts at ${startHours}h${startMinutes} and ends at ${endHours}h${endMinutes}`);
-
-    return { startHours, startMinutes, endHours, endMinutes, isEventAfter22h00 };
-}
-
-
 
 $(document).ready(function() {
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
@@ -45,120 +23,13 @@ $(document).ready(function() {
     $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
         console.log(`Radio button clicked: ${$(this).attr('class')}`);
         let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
-    
-        // Parse the event times from the eventTimeString
-        const eventTimeString = $('#data-text-item-check').text(); // Assuming this is where the event time string is stored
-        const { startHours, startMinutes, endHours, endMinutes, isEventAfter22h00 } = parseEventTimes(eventTimeString);
-    
         if (isRadio4Or5) {
-            $('#nombre-equipier-traiteur').text('0'); // No catering staff for scenario 1
-            // Adjust security and regisseur based on event time for scenario 1
-            adjustStaffForScenario1(startHours, startMinutes, endHours, endMinutes);
+            $('#nombre-equipier-traiteur').text('0');
         } else {
-            // Adjust catering, security, and regisseur based on event time for scenario 2
-            adjustStaffForScenario2(startHours, startMinutes, endHours, endMinutes);
+            updateTeamMembers(); 
         }
-    
         resetPricingCalculator();
     });
-
-    function adjustStaffForScenario1(startHours, startMinutes, endHours, endMinutes) {
-        // Security Staff Logic
-        const eventStart = convertHoursToMinutes(startHours, startMinutes);
-        const eventEnd = convertHoursToMinutes(endHours, endMinutes);
-        let securityArrival, securityDeparture;
-    
-        if (eventStart < 18 * 60) { // Event starts before 18h
-            securityArrival = 17 * 60 + 30; // Security arrives at 17:30
-        } else {
-            securityArrival = eventStart - 30; // 30 minutes before event start
-        }
-        securityDeparture = eventEnd + 30; // 30 minutes after event ends
-    
-        // Regisseur Logic
-        let regisseurArrival = eventStart - 60; // 1 hour before event start
-        let regisseurDeparture = eventEnd + 60; // 1 hour after event ends
-    
-        // Update UI or variables here based on calculated times
-        updateStaffTimeUI('securite', securityArrival, securityDeparture);
-        updateStaffTimeUI('regisseur', regisseurArrival, regisseurDeparture);
-    
-        // No catering staff for scenario 1
-        $('#temps-staff-traiteur').text("Catering staff not required.");
-    }
-    
-    function adjustStaffForScenario2(startHours, startMinutes, endHours, endMinutes) {
-        // Reuse security staff logic from scenario 1
-        adjustStaffForScenario1(startHours, startMinutes, endHours, endMinutes);
-    
-        // Catering Staff Logic
-        const eventStart = convertHoursToMinutes(startHours, startMinutes);
-        const eventEnd = convertHoursToMinutes(endHours, endMinutes);
-        let cateringArrival = eventStart - 120; // 2 hours before event start
-        let cateringDeparture = eventEnd + 60; // 1 hour after event ends
-    
-        // Regisseur Logic adjustment for scenario 2
-        let regisseurArrival = eventStart - 120; // 2 hours before event start
-        let regisseurDeparture = eventEnd + 60; // 1 hour after event ends
-    
-        // Update UI or variables here based on calculated times
-        updateStaffTimeUI('traiteur', cateringArrival, cateringDeparture);
-        // Assuming updateStaffTimeUI for regisseur is called within adjustStaffForScenario1
-    }
-    
-    function convertHoursToMinutes(hours, minutes) {
-        return hours * 60 + minutes;
-    }
-    
-    function updateStaffTimeUI(staffType, arrival, departure) {
-        const arrivalTime = formatTime(arrival);
-        const departureTime = formatTime(departure);
-        const duration = (departure - arrival) / 60;
-        const staffCost = calculateStaffCost(staffType, duration); // Implement this based on your pricing structure
-    
-        $(`#temps-staff-${staffType}`).text(`Le staff ${staffType} arrivera à ${arrivalTime} et partira à ${departureTime}. Pour un total de ${duration} heures, le prix sera de ${staffCost}€.`);
-    }
-    
-    function formatTime(minutes) {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return `${hours.toString().padStart(2, '0')}h${mins.toString().padStart(2, '0')}`;
-    }
-    
-    function calculateStaffCost(staffType, hours) {
-        let costPerHour; // Cost per hour for each staff type
-    
-        // Define the hourly cost for each type of staff
-        switch (staffType) {
-            case 'securite':
-                costPerHour = 35; // Assuming $35 per hour for security staff
-                break;
-            case 'traiteur':
-                costPerHour = 50; // Assuming $50 per hour for catering staff
-                break;
-            case 'regisseur':
-                costPerHour = 40; // Assuming $40 per hour for regisseurs
-                break;
-            default:
-                costPerHour = 0; // No cost for unspecified staff types
-        }
-    
-        // Calculate total cost for the staff based on the hours worked
-        const totalCost = costPerHour * hours;
-        return totalCost; // Return the calculated cost
-    }
-    
-    
-
-
-
-
-
-
-
-
-
-    
 
     $('#nb-personnes-final-2').on('input', function() {
         console.log("Number of attendees changed");
