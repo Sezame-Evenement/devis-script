@@ -9,41 +9,6 @@ function isEventAfter22h00(eventTimeString) {
     return hours >= 22 || (hours < 6 && hours >= 0);
 }
 
-
-$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    console.log(`Radio button clicked: ${$(this).attr('class')}`);
-
-    // Determine which radio button was clicked based on its class
-    let radioSelection;
-    if ($(this).hasClass('ms-radio-button-tab-is-1')) {
-        radioSelection = 1;
-    } else if ($(this).hasClass('ms-radio-button-tab-is-2')) {
-        radioSelection = 2;
-    } else if ($(this).hasClass('ms-radio-button-tab-is-3')) {
-        radioSelection = 3;
-    } else if ($(this).hasClass('ms-radio-button-tab-is-4')) {
-        radioSelection = 4;
-    } else if ($(this).hasClass('ms-radio-button-tab-is-5')) {
-        radioSelection = 5;
-    }
-
-
-    console.log(`Radio selection is: ${radioSelection}`);
-
-    // Assume you have the eventTimeString somewhere in your code already
-    const eventTimeString = $('#data-text-item-check').text(); // Example of retrieving the event time string
-    const {startTime, endTime} = extractEventTimesAndCalculateDuration(eventTimeString);
-
-    console.log(`Event starts at ${startTime} and ends at ${endTime}`);
-
-    // Calculate staff times based on the event time and the radio selection
-    const staffTimes = calculateStaffTimes(startTime, endTime, radioSelection);
-
-    console.log('Calculated staff times:', staffTimes);
-
-});
-
-
 function extractEventTimesAndCalculateDuration(eventTimeString) {
     const parts = eventTimeString.split(' au ');
     const startPart = parts[0].split('à')[1].trim();
@@ -273,6 +238,8 @@ function updatePricesAndTotal() {
     console.log("updatePricesAndTotal called");
 
     let isRadio4Or5Checked = $('.ms-radio-button-tab-is-4:checked, .ms-radio-button-tab-is-5:checked').length > 0;
+    console.log("isRadio4Or5Checked:", isRadio4Or5Checked); // Added console log to check the value of isRadio4Or5Checked
+
     
     // Event time parsing and duration calculation
     const eventTimeString = $('#data-text-item-check').text();
