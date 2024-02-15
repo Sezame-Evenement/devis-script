@@ -249,7 +249,6 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
 
 
   
-
    
  // Item and meal cost calculations
  let sumSpecialite = calculateCategorySum('checkbox-devis-specialite-1', Number($('.specialite-number-1').val())) +
@@ -283,6 +282,12 @@ let totalTVA = totalBeforeTaxes * tvaRate;
 // Calculate final totals
 let totalHT = totalBeforeTaxes;
 let totalTTC = totalHT + totalTVA;
+
+updateSumDisplay('price-specialite', sumSpecialite1 + sumSpecialite2 + sumSpecialite3);
+updateSumDisplay('price-petitdejeuner', sumPetitdejeuner1 + sumPetitdejeuner2);
+updateSumDisplay('price-dejeuner', sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4);
+updateSumDisplay('price-pause', sumPause);
+updateSumDisplay('price-diner', sumDiner1 + sumDiner2 + sumDiner3);
 
 // Update the UI with the calculated values
 $('.total-ht').text(totalHT.toFixed(2).replace('.', ','));
