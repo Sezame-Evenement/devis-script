@@ -16,12 +16,16 @@ function isEventAfter22h00(eventTimeString) {
 
 
 $(document).ready(function() {
+   
     if ($('input[name="Choix-traiteur"]:checked').length === 0) {
-        // If no radio button is selected by default, manually select Radio 1 and trigger change
-        $('#Traiteur-n-1').prop('checked', true);
+        $('#Traiteur-n-1').prop('checked', true).trigger('change'); // Ensure Radio 1 is selected and trigger change
+        console.log("Radio 1 selected by default");
+    } else {
+        $('input[name="Choix-traiteur"]:checked').trigger('change'); // Trigger change for the already selected radio button
     }
-    // Now trigger change to ensure the page loads with the correct settings
-    $('input[name="Choix-traiteur"]:checked').change();
+
+
+
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
     console.log("Document ready");
@@ -176,6 +180,7 @@ $('input[name="Choix-traiteur"]').change(function() {
 
     resetPricingCalculator();
     updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
+    updateTeamMembers();
 });
 
 function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
@@ -217,7 +222,7 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
     let regisseurDeparture = eventEndHour + 1;
 
-    const YOUR_DEFAULT_CATERING_STAFF_COST = 30;
+    const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
     const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
 
