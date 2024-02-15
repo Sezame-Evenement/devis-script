@@ -159,12 +159,20 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    console.log(`Radio button clicked: ${$(this).attr('class')}`);
-    let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
-    console.log(`Is radio 4 or 5 checked: ${isRadio4Or5}`);
-    if (isRadio4Or5) {
+    let clickedClass = $(this).attr('class').split(/\s+/); // Get all classes of the clicked element
+    console.log(`Clicked radio button classes: ${clickedClass}`);
+    
+    // Determine which radio button was clicked based on the class
+    let isRadio4Or5Clicked = clickedClass.includes('ms-radio-button-tab-is-4') || clickedClass.includes('ms-radio-button-tab-is-5');
+    let isRadio1To3Clicked = clickedClass.includes('ms-radio-button-tab-is-1') || clickedClass.includes('ms-radio-button-tab-is-2') || clickedClass.includes('ms-radio-button-tab-is-3');
+
+    console.log(`Is radio 4 or 5 clicked: ${isRadio4Or5Clicked}`);
+    console.log(`Is radio 1, 2, or 3 clicked: ${isRadio1To3Clicked}`);
+
+    if (isRadio4Or5Clicked) {
         $('#nombre-equipier-traiteur').text('0'); // Catering staff not required for radio 4 or 5
     } else {
+        // Presuming updateTeamMembers function correctly handles updating based on the number of attendees
         updateTeamMembers(); // Update team members for radio 1, 2, or 3
     }
     resetPricingCalculator();
