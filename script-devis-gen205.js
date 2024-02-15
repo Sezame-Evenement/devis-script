@@ -45,7 +45,7 @@ $(document).ready(function() {
     $('#nb-personnes-final-2').on('input', function() {
         console.log("Number of attendees changed");
         updateTeamMembers();
-        updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);    });
+        updatePricesAndTotal();    });
 
     const eventTimeString = $('#data-text-item-check').text();
     console.log(`Event Time String: ${eventTimeString}`);
@@ -323,7 +323,7 @@ function resetPricingCalculator() {
         $('#nombre-equipier-traiteur').text('0');
         console.log("Resetting pricing calculator: Catering and Security staff maintained at 0 for radio 4 or 5"); 
     }
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);}
+    updatePricesAndTotal();}
 
 $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').click(function() {
     updatePricesAndTotal();});
