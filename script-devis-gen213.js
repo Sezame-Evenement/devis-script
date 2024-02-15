@@ -166,6 +166,12 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
     
 }
 
+function formatTime(time) {
+    let hours = Math.floor(time);
+    let minutes = Math.floor((time - hours) * 60);
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
+
 
 $('input[name="Choix-traiteur"]').change(function() {
     let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
@@ -271,11 +277,6 @@ $('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
 $('.hack42-send-value').val(totalHT.toFixed(2));
 }
 
-function formatTime(time) {
-    let hours = Math.floor(time);
-    let minutes = Math.floor((time - hours) * 60);
-    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
-}
 
 
 
