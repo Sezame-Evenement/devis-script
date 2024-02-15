@@ -109,15 +109,9 @@ function formatTime(hourDecimal) {
 
 
 
-function isEventAfter22h00(eventTimeString) {
-    const parts = eventTimeString.split(' au ');
-    const endTimeString = parts.length > 1 ? parts[1] : '';
-    const timePart = endTimeString.split('à')[1].trim(); 
-    const [hours, minutes] = timePart.split('h').map(Number);
-
-    console.log(`isEventAfter22h00: Event ends at ${hours}h${minutes}`);
-
-    return hours >= 22 || (hours < 6 && hours >= 0);
+function isEventAfter22h00(timeString) {
+    const [hours, minutes] = timeString.split('h').map(Number);
+    return hours >= 22 || (hours >= 0 && hours < 6);
 }
 
 
