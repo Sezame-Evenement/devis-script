@@ -192,8 +192,11 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
     // Adjust security staff timing based on event start time
-    let securityArrival = eventStartHour <= 18 ? 17.5 : eventStartHour - 0.5;
+    let securityArrival = eventStartHour <= 18 ? 17.5 : Math.max(eventStartHour - 0.5, 17.5); // Ensure security does not arrive before 17:30
     let securityDeparture = eventEndHour + 0.5;
+    if (securityDeparture < securityArrival) {
+        securityDeparture += 24; // Adjust for overnight security requirement
+    }
 
     // Calculate security staff cost and log the hours worked and cost
     let securityHoursWorked = securityDeparture - securityArrival;
