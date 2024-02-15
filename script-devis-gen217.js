@@ -14,57 +14,71 @@ function isEventAfter22h00(eventTimeString) {
 }
 
 
-
 $(document).ready(function() {
-   
-    if (!$('input[name="Choix-traiteur"]:checked').val()) {
+    // Default selection of Radio 1 if none is selected
+    if (!$('input[name="Choix-traiteur"]:checked').length) {
         $('#Traiteur-n-1').prop('checked', true);
         console.log("Radio 1 selected by default");
     }
 
-
+    // Initial setup
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
-    console.log("Document ready");
+    const initialPriceTraiteurPerso = 120;
+    $('.price-traiteur-perso').text(initialPriceTraiteurPerso);
 
-    initialPriceTraiteurPerso = 120;
-    $('.price-traiteur-perso').text(initialPriceTraiteurPerso); // Set the initial UI element to 120
+    // Initial update calls
+    updateTeamMembers();
+    triggerUpdatePricesAndTotal();
 
-    console.log(`Initial Price Traiteur Perso: ${initialPriceTraiteurPerso}`);
-
-    $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
+    // Radio button click event
+    $('input[name="Choix-traiteur"]').change(function() {
         console.log(`Radio button clicked: ${$(this).attr('class')}`);
-        let isRadio4Or5 = $(this).hasClass('ms-radio-button-tab-is-4') || $(this).hasClass('ms-radio-button-tab-is-5');
-        if (isRadio4Or5) {
-            $('#nombre-equipier-traiteur').text('0');
-        } else {
-            updateTeamMembers(); 
-        }
+        updateTeamMembers();
         resetPricingCalculator();
+        triggerUpdatePricesAndTotal();
     });
 
+    // Attendees input change event
     $('#nb-personnes-final-2').on('input', function() {
         console.log("Number of attendees changed");
         updateTeamMembers();
-        updatePricesAndTotal();    });
+        triggerUpdatePricesAndTotal();
+    });
 
+    // Security staff update based on event time
     const eventTimeString = $('#data-text-item-check').text();
-    console.log(`Event Time String: ${eventTimeString}`);
     updateSecurityStaffBasedOnEventTime(eventTimeString);
-    updateTeamMembers();
-    updatePricesAndTotal();});
+});
+
+function triggerUpdatePricesAndTotal() {
+    let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
+    let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
+    let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
+    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
+}
 
 function updateSecurityStaffBasedOnEventTime(eventTimeString) {
     console.log(`updateSecurityStaffBasedOnEventTime: ${eventTimeString}`);
     if (isEventAfter22h00(eventTimeString)) {
         console.log("Event is after 22h00, showing security wrapper");
         $('.wrapper-security').show();
+        // Update security staff members based on attendees
+        updateSecurityStaff(eventTimeString, $('#nb-personnes-final-2').val());
     } else {
         console.log("Event is not after 22h00, hiding security wrapper");
         $('.wrapper-security').hide();
         $('#nombre-securite').text('0');
     }
 }
+
+// Note: Make sure all other functions like updatePricesAndTotal, updateTeamMembers, 
+// updateSecurityStaff, and isEventAfter22h00 are defined and correctly implemented as needed.
+
+
+
+
+
 
 
 let initialPriceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
