@@ -430,4 +430,16 @@ $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-deje
     updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
 });
 
+function copyTextToPlaceholderAndBlock(sourceSelector, inputSelector, textSelector) {
+    var sourceText = $(sourceSelector).text().trim(); // Get the text from the source element
+    console.log(`Copied text '${sourceText}' from ${sourceSelector} to ${inputSelector} and ${textSelector}`);
+
+    $(inputSelector).attr('placeholder', sourceText); // Set the placeholder for the input field
+    $(textSelector).text(sourceText); // Set the text for the specified elements
+}
+
+// Execute the function for each matching pair of source and target elements
+copyTextToPlaceholderAndBlock('#temps-staff-traiteur', '#staff-traiteur-text', '.temps-staff-traiteur-e2');
+copyTextToPlaceholderAndBlock('#temps-regisseur', '#staff-regisseur-text', '.temps-regisseur-e2');
+copyTextToPlaceholderAndBlock('#temps-staff-securite', '#staff-securite-text', '.temps-staff-securite-e2');
 
