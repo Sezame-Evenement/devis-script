@@ -17,13 +17,10 @@ function isEventAfter22h00(eventTimeString) {
 
 $(document).ready(function() {
    
-    if ($('input[name="Choix-traiteur"]:checked').length === 0) {
-        $('#Traiteur-n-1').prop('checked', true).trigger('change'); // Ensure Radio 1 is selected and trigger change
+    if (!$('input[name="Choix-traiteur"]:checked').val()) {
+        $('#Traiteur-n-1').prop('checked', true);
         console.log("Radio 1 selected by default");
-    } else {
-        $('input[name="Choix-traiteur"]:checked').trigger('change'); // Trigger change for the already selected radio button
     }
-
 
 
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
