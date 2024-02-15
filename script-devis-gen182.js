@@ -158,24 +158,26 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 }
 
 
-$('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
-    let clickedClass = $(this).attr('class').split(/\s+/); // Get all classes of the clicked element
-    console.log(`Clicked radio button classes: ${clickedClass}`);
-    
-    // Determine which radio button was clicked based on the class
-    let isRadio4Or5Clicked = clickedClass.includes('ms-radio-button-tab-is-4') || clickedClass.includes('ms-radio-button-tab-is-5');
-    let isRadio1To3Clicked = clickedClass.includes('ms-radio-button-tab-is-1') || clickedClass.includes('ms-radio-button-tab-is-2') || clickedClass.includes('ms-radio-button-tab-is-3');
+$('input[name="Choix-traiteur"]').change(function() {
+    // Get the value of the selected radio button
+    let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
+    console.log(`Selected radio button value: ${selectedValue}`);
 
-    console.log(`Is radio 4 or 5 clicked: ${isRadio4Or5Clicked}`);
-    console.log(`Is radio 1, 2, or 3 clicked: ${isRadio1To3Clicked}`);
+    // Determine which radio button was selected based on its value
+    let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
+    let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
 
-    if (isRadio4Or5Clicked) {
+    console.log(`Is radio 4 or 5 selected: ${isRadio4Or5Selected}`);
+    console.log(`Is radio 1, 2, or 3 selected: ${isRadio1To3Selected}`);
+
+    if (isRadio4Or5Selected) {
         $('#nombre-equipier-traiteur').text('0'); // Catering staff not required for radio 4 or 5
-    } else {
-        // Presuming updateTeamMembers function correctly handles updating based on the number of attendees
-        updateTeamMembers(); // Update team members for radio 1, 2, or 3
+        // Apply additional logic for radio 4 or 5 if needed
+    } else if (isRadio1To3Selected) {
+        // Apply logic for radio 1, 2, or 3
+        updateTeamMembers(); // Assuming this function adjusts team members accordingly
     }
-    resetPricingCalculator();
+    resetPricingCalculator(); // Assuming this resets the calculator as needed
 });
 
 function updatePricesAndTotal() {
