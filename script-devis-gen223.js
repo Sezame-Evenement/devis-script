@@ -251,48 +251,26 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
   
    
  // Item and meal cost calculations
+ let sumSpecialite = calculateCategorySum('checkbox-devis-specialite-1', Number($('.specialite-number-1').val())) +
+ calculateCategorySum('checkbox-devis-specialite-2', Number($('.specialite-number-2').val())) +
+ calculateCategorySum('checkbox-devis-specialite-3', Number($('.specialite-number-3').val()));
+ let sumPetitdejeuner = calculateCategorySum('checkbox-devis-petitdejeuner-1', Number($('.petit-dejeuner-number-1').val())) +
+     calculateCategorySum('checkbox-devis-petitdejeuner-2', Number($('.petit-dejeuner-number-2').val()));
+ let sumDejeuner = calculateCategorySum('checkbox-devis-dejeuner-1', Number($('.dejeuner-number-1').val())) +
+ calculateCategorySum('checkbox-devis-dejeuner-2', Number($('.dejeuner-number-2').val())) +
+ calculateCategorySum('checkbox-devis-dejeuner-3', Number($('.dejeuner-number-3').val())) +
+ calculateCategorySum('checkbox-devis-dejeuner-4', Number($('.dejeuner-number-4').val()));
+ let sumPause = calculateCategorySum('checkbox-devis-pause', Number($('.pause-aprem-number-1').val()));
+ let sumDiner = calculateCategorySum('checkbox-devis-diner-1', Number($('.diner-number-1').val())) +
+ calculateCategorySum('checkbox-devis-diner-2', Number($('.diner-number-2').val())) +
+ calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val()));
 
-    let sumSpecialite1 = 0;
-    let sumSpecialite2 = 0;
-    let sumSpecialite3 = 0;
-    let sumPetitdejeuner1 = 0;
-    let sumPetitdejeuner2 = 0;
-    let sumDejeuner1 = 0;
-    let sumDejeuner2 = 0;
-    let sumDejeuner3 = 0;
-    let sumDejeuner4 = 0;
-    let sumPause = 0;
-    let sumDiner1 = 0;
-    let sumDiner2 = 0;
-    let sumDiner3 = 0;
-
-    const numberOfPersonsSpecialite1 = Number($('.specialite-number-1').val());
-    const numberOfPersonsSpecialite2 = Number($('.specialite-number-2').val());
-    const numberOfPersonsSpecialite3 = Number($('.specialite-number-3').val());
-    const numberOfPersonsPetitdejeuner1 = Number($('.petit-dejeuner-number-1').val());
-    const numberOfPersonsPetitdejeuner2 = Number($('.petit-dejeuner-number-2').val());
-    const numberOfPersonsDejeuner1 = Number($('.dejeuner-number-1').val());
-    const numberOfPersonsDejeuner2 = Number($('.dejeuner-number-2').val());
-    const numberOfPersonsDejeuner3 = Number($('.dejeuner-number-3').val());
-    const numberOfPersonsDejeuner4 = Number($('.dejeuner-number-4').val());
-    const numberOfPersonsPause = Number($('.pause-aprem-number-1').val());
-    const numberOfPersonsDiner1 = Number($('.diner-number-1').val());
-    const numberOfPersonsDiner2 = Number($('.diner-number-2').val());
-    const numberOfPersonsDiner3 = Number($('.diner-number-3').val());
-
-    sumSpecialite1 = calculateCategorySum('checkbox-devis-specialite-1', numberOfPersonsSpecialite1);
-    sumSpecialite2 = calculateCategorySum('checkbox-devis-specialite-2', numberOfPersonsSpecialite2);
-    sumSpecialite3 = calculateCategorySum('checkbox-devis-specialite-3', numberOfPersonsSpecialite3);
-    sumPetitdejeuner1 = calculateCategorySum('checkbox-devis-petitdejeuner-1', numberOfPersonsPetitdejeuner1);
-    sumPetitdejeuner2 = calculateCategorySum('checkbox-devis-petitdejeuner-2', numberOfPersonsPetitdejeuner2);
-    sumDejeuner1 = calculateCategorySum('checkbox-devis-dejeuner-1', numberOfPersonsDejeuner1);
-    sumDejeuner2 = calculateCategorySum('checkbox-devis-dejeuner-2', numberOfPersonsDejeuner2);
-    sumDejeuner3 = calculateCategorySum('checkbox-devis-dejeuner-3', numberOfPersonsDejeuner3);
-    sumDejeuner4 = calculateCategorySum('checkbox-devis-dejeuner-4', numberOfPersonsDejeuner4);
-    sumPause = calculateCategorySum('checkbox-devis-pause', numberOfPersonsPause);
-    sumDiner1 = calculateCategorySum('checkbox-devis-diner-1', numberOfPersonsDiner1);
-    sumDiner2 = calculateCategorySum('checkbox-devis-diner-2', numberOfPersonsDiner2);
-    sumDiner3 = calculateCategorySum('checkbox-devis-diner-3', numberOfPersonsDiner3);
+ // Now update the UI for each category using the updateSumDisplay function
+ updateSumDisplay('price-specialite', sumSpecialite);
+ updateSumDisplay('price-petitdejeuner', sumPetitdejeuner);
+ updateSumDisplay('price-dejeuner', sumDejeuner);
+ updateSumDisplay('price-pause', sumPause);
+ updateSumDisplay('price-diner', sumDiner);
 
 // Sum up all item and meal costs
 let totalMealAndItemCost = sumSpecialite + sumPetitdejeuner + sumDejeuner + sumPause + sumDiner;
@@ -312,11 +290,7 @@ let totalTVA = totalBeforeTaxes * tvaRate;
 let totalHT = totalBeforeTaxes;
 let totalTTC = totalHT + totalTVA;
 
-updateSumDisplay('price-specialite', sumSpecialite1 + sumSpecialite2 + sumSpecialite3);
-updateSumDisplay('price-petitdejeuner', sumPetitdejeuner1 + sumPetitdejeuner2);
-updateSumDisplay('price-dejeuner', sumDejeuner1 + sumDejeuner2 + sumDejeuner3 + sumDejeuner4);
-updateSumDisplay('price-pause', sumPause);
-updateSumDisplay('price-diner', sumDiner1 + sumDiner2 + sumDiner3);
+
 
 // Update the UI with the calculated values
 $('.total-ht').text(totalHT.toFixed(2).replace('.', ','));
@@ -356,7 +330,7 @@ function calculateCategorySum(className, numberOfPersons) {
 
 function updateSumDisplay(targetClass, sum) {
     const formattedSum = sum.toFixed(2).replace('.', ',');
-    $(`.${targetClass}`).text(formattedSum);
+    $(`.${targetClass}`).text(formattedSum); // Make sure the class matches your HTML elements
 }
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
