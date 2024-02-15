@@ -51,7 +51,7 @@ $(document).ready(function() {
     console.log(`Event Time String: ${eventTimeString}`);
     updateSecurityStaffBasedOnEventTime(eventTimeString);
     updateTeamMembers();
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();});
 
 function updateSecurityStaffBasedOnEventTime(eventTimeString) {
     console.log(`updateSecurityStaffBasedOnEventTime: ${eventTimeString}`);
@@ -326,10 +326,10 @@ function resetPricingCalculator() {
     updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);}
 
 $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').click(function() {
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();});
 
 var Webflow = Webflow || [];
 Webflow.push(function() {
@@ -371,8 +371,8 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();});
 
