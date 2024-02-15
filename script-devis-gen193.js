@@ -198,10 +198,16 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
     const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
 
+
+
     // Update staff presence messages directly
     $('#temps-staff-securite').text(`Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`);
     $('#temps-staff-traiteur').text(isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "");
     $('#temps-regisseur').text(`Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`);
+
+
+    const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
+    console.log(`Total Staff Cost: ${totalStaffCost}`);
 
     $('#total-staff').text((cateringStaffCost + securityStaffCost + regisseurCost).toFixed(2).replace('.', ','));
 
