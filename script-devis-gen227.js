@@ -239,9 +239,24 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     console.log(`Catering Staff: Hours Worked = ${cateringDeparture - cateringArrival}, Cost = ${cateringStaffCost.toFixed(2)}€`);
     console.log(`Regisseur: Hours Worked = ${regisseurDeparture - regisseurArrival}, Cost = ${regisseurCost.toFixed(2)}€`);
 
-    $('#temps-staff-securite').text(`Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`);
-    $('#temps-staff-traiteur').text(isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "");
-    $('#temps-regisseur').text(`Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`);
+  // For security staff
+const securityStaffMessage = `Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`;
+$('#temps-staff-securite').text(securityStaffMessage);
+$('#staff-securite-text').val(securityStaffMessage); // Set value for input
+$('.temps-staff-securite-e2').text(securityStaffMessage); // Set text for block
+
+// For catering staff
+const cateringStaffMessage = isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "";
+$('#temps-staff-traiteur').text(cateringStaffMessage);
+$('#staff-traiteur-text').val(cateringStaffMessage); // Set value for input
+$('.temps-staff-traiteur-e2').text(cateringStaffMessage); // Set text for block
+
+// For stage manager (régisseur)
+const regisseurMessage = `Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`;
+$('#temps-regisseur').text(regisseurMessage);
+$('#staff-regisseur-text').val(regisseurMessage); // Set value for input
+$('.temps-regisseur-e2').text(regisseurMessage); // Set text for block
+
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     console.log(`Total Staff Cost: ${totalStaffCost.toFixed(2)}€`);
