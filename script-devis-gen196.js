@@ -17,6 +17,7 @@ $(document).ready(function() {
     }
     // Now trigger change to ensure the page loads with the correct settings
     $('input[name="Choix-traiteur"]:checked').change();
+
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
     console.log("Document ready");
@@ -40,13 +41,15 @@ $(document).ready(function() {
     $('#nb-personnes-final-2').on('input', function() {
         console.log("Number of attendees changed");
         updateTeamMembers();
-        updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);    });
+        updatePricesAndTotal();
+    });
 
     const eventTimeString = $('#data-text-item-check').text();
     console.log(`Event Time String: ${eventTimeString}`);
     updateSecurityStaffBasedOnEventTime(eventTimeString);
     updateTeamMembers();
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();
+});
 
 function updateSecurityStaffBasedOnEventTime(eventTimeString) {
     console.log(`updateSecurityStaffBasedOnEventTime: ${eventTimeString}`);
@@ -179,41 +182,55 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     const [endHour, endMinute] = endTime.split('h').map(Number);
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) eventEndHour += 24;
+    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
-    // Define staff counts
+    // Define staff counts based on inputs
     const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
-    // Security staff timing
-    let securityArrival = eventStartHour < 18 ? 17.5 : eventStartHour - 0.5;
-    let securityDeparture = eventEndHour + 0.5;
+    // Adjusted security staff timing
+    let securityArrival, securityDeparture;
+    if (eventStartHour < 18) {
+        securityArrival = 17.5; // 17:30 if event starts before 18:00
+    } else {
+        securityArrival = eventStartHour - 0.5; // 30 min before event
+    }
+    securityDeparture = eventEndHour + 0.5; // 30 min after event
+
+    // Correcting negative cost issue by ensuring security staff presence is calculated correctly
+    if (isEventAfter22h00(startTime) || isEventAfter22h00(endTime) || (eventStartHour <= 6)) {
+        // Security staff logic here
+    } else {
+        // If the event does not require security, set counts to 0
+        securityArrival = securityDeparture = 0; // Reset times if security not required
+    }
 
     // Catering and Regisseur staff timing for Scenario 1 and 2
-    let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
-    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
-    let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
-    let regisseurDeparture = eventEndHour + 1;
+    let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null; // 2 hours before event for catering
+    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null; // 1 hour after for catering
+    let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1; // 2 hours before for regisseur if catering, else 1 hour
+    let regisseurDeparture = eventEndHour + 1; // 1 hour after for regisseur
 
     // Assuming default staff cost values
-    const YOUR_DEFAULT_CATERING_STAFF_COST = 30; // Placeholder
-    const securityStaffCost = numberOfSecurityStaff * 35 * (securityDeparture - securityArrival);
-    const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
-    const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
+    const YOUR_DEFAULT_CATERING_STAFF_COST = 30; // Placeholder for catering staff cost
+    let securityStaffCost = numberOfSecurityStaff * 35 * (securityDeparture - securityArrival);
+    let regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
+    let cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
 
-
+    // Ensure securityStaffCost is not negative
+    if (securityStaffCost < 0) securityStaffCost = 0;
 
     // Update staff presence messages directly
     $('#temps-staff-securite').text(`Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`);
     $('#temps-staff-traiteur').text(isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "");
     $('#temps-regisseur').text(`Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`);
 
-
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
     console.log(`Total Staff Cost: ${totalStaffCost}`);
 
     $('#total-staff').text((cateringStaffCost + securityStaffCost + regisseurCost).toFixed(2).replace('.', ','));
+
 
 
 
@@ -318,13 +335,16 @@ function resetPricingCalculator() {
         $('#nombre-equipier-traiteur').text('0');
         console.log("Resetting pricing calculator: Catering and Security staff maintained at 0 for radio 4 or 5"); 
     }
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);}
+    updatePricesAndTotal();
+}
 
 $('.checkbox-devis-specialite-1, .checkbox-devis-specialite-2, .checkbox-devis-specialite-3, .checkbox-devis-petitdejeuner-1, .checkbox-devis-petitdejeuner-2, .checkbox-devis-dejeuner-1, .checkbox-devis-dejeuner-2, .checkbox-devis-dejeuner-3, .checkbox-devis-dejeuner-4, .checkbox-devis-pause, .checkbox-devis-diner-1, .checkbox-devis-diner-2, .checkbox-devis-diner-3').click(function() {
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();
+});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();
+});
 
 var Webflow = Webflow || [];
 Webflow.push(function() {
@@ -366,8 +386,10 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();
+});
 
 $('.specialite-number-1, .specialite-number-2, .specialite-number-3, .petit-dejeuner-number-1, .petit-dejeuner-number-2, .dejeuner-number-1, .dejeuner-number-2, .dejeuner-number-3, .dejeuner-number-4, .pause-aprem-number-1, .diner-number-1, .diner-number-2, .diner-number-3').on('change keyup', function() {
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);});
+    updatePricesAndTotal();
+});
 
