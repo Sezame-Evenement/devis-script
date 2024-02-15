@@ -23,64 +23,6 @@ function extractEventTimesAndCalculateDuration(eventTimeString) {
     return {startTime, endTime, duration};
 }
 
-function determineRadioSelection() {
-    const radioButtons = $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5');
-    let selectedRadio = 0;
-    radioButtons.each(function() {
-        if ($(this).prop('checked')) {
-            selectedRadio = parseInt($(this).attr('class').split('-').pop(), 10);
-            return false; // Exit loop early if a radio button is selected
-        }
-    });
-    return selectedRadio;
-}
-
-function calculateStaffTimes(startTime, endTime, radioSelection) {
-    const staffTimes = {
-        caterer: { arrive: startTime, leave: endTime },
-        security: { arrive: startTime, leave: endTime },
-        regisseur: { arrive: startTime, leave: endTime }
-    };
-
-    // Caterer and regisseur arrive 2 hours before and leave 1 hour after for radios 1, 2, 3, or on page load
-    if (radioSelection <= 3) {
-        staffTimes.caterer.arrive -= 2;
-        staffTimes.caterer.leave += 1;
-        staffTimes.regisseur.arrive -= 2;
-        staffTimes.regisseur.leave += 1;
-    }
-
-    // Security logic
-    if (endTime >= 18 || (radioSelection === 4 || radioSelection === 5 && (startTime <= 6 || startTime >= 22))) {
-        // Security arrives 30 minutes before if event starts after 18h, else at 17:30
-        staffTimes.security.arrive = (startTime >= 18) ? startTime - 0.5 : 17.5;
-        staffTimes.security.leave = endTime + 0.5; // Security leaves 30 minutes after event
-    } else {
-        // Default security time for events not starting after 18h
-        staffTimes.security.arrive = 17.5;
-        staffTimes.security.leave = endTime;
-    }
-
-    // Adjust for radio 4 or 5 specific conditions
-    if (radioSelection === 4 || radioSelection === 5) {
-        staffTimes.regisseur.arrive = startTime - 1;
-        staffTimes.regisseur.leave = endTime + 1;
-    }
-
-    // Ensure no negative times
-    Object.keys(staffTimes).forEach(key => {
-        staffTimes[key].arrive = Math.max(staffTimes[key].arrive, 0);
-        staffTimes[key].leave = Math.min(staffTimes[key].leave, 24);
-    });
-
-    return staffTimes;
-}
-
-
-
-
-
-
 $(document).ready(function() {
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
