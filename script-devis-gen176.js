@@ -23,6 +23,18 @@ function extractEventTimesAndCalculateDuration(eventTimeString) {
     return {startTime, endTime, duration};
 }
 
+function determineRadioSelection() {
+    const radioButtons = $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5');
+    let selectedRadio = 0;
+    radioButtons.each(function() {
+        if ($(this).prop('checked')) {
+            selectedRadio = parseInt($(this).attr('class').split('-').pop(), 10);
+            return false; // Exit loop early if a radio button is selected
+        }
+    });
+    return selectedRadio;
+}
+
 function calculateStaffTimes(startTime, endTime, radioSelection) {
     const staffTimes = {
         caterer: { arrive: startTime, leave: endTime },
