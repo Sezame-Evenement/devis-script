@@ -1,3 +1,114 @@
+$('input[name="Choix-traiteur"]').change(function() {
+    let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
+
+    let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
+    let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
+
+    resetPricingCalculator();
+    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
+});
+
+function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
+    const eventTimeString = $('#data-text-item-check').text();
+    const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
+    const [startHour, startMinute] = startTime.split('h').map(Number);
+    const [endHour, endMinute] = endTime.split('h').map(Number);
+    let eventStartHour = startHour + startMinute / 60;
+    let eventEndHour = endHour + endMinute / 60;
+
+    // Correcting for events that end after midnight by adding 24 hours to end time for calculation purposes
+    if (eventEndHour < eventStartHour) {
+        eventEndHour += 24;
+    }
+
+    // Security and Regisseur timing adjustments
+    let securityArrival, securityDeparture, regisseurArrival, regisseurDeparture;
+
+    // For security staff
+    if (isEventAfter22h00(`${startHour}h${startMinute}`) || isEventAfter22h00(`${endHour}h${endMinute}`)) {
+        securityArrival = eventStartHour < 18 ? 17.5 : Math.min(eventStartHour - 0.5, 24);
+        securityDeparture = eventEndHour + 0.5;
+    } else {
+        securityArrival = securityDeparture = 0; // No security needed
+    }
+
+    // Catering and Regisseur staff timing based on scenarios
+    let cateringArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - 2) : null;
+    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
+    regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
+    regisseurDeparture = eventEndHour + 1;
+
+    // Cost calculations
+    const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
+    const securityStaffCost = (securityArrival < securityDeparture) ? numberOfSecurityStaff * 35 * (securityDeparture - securityArrival) : 0;
+    const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
+    const cateringStaffCost = isRadio1To3Selected && cateringArrival !== null ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
+
+    // Updating messages with corrected times and ensuring no negative values
+    $('#temps-staff-securite').text(securityArrival < securityDeparture ? `Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.` : "");
+    $('#temps-staff-traiteur').text(isRadio1To3Selected && cateringArrival !== null ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "Pas de staff traiteur requis.");
+    $('#temps-regisseur').text(`Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`);
+
+    const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
+    $('#total-staff').text(totalStaffCost.toFixed(2).replace('.', ','));
+
+
+
+
+  
+
+   
+ // Item and meal cost calculations
+ let sumSpecialite = calculateCategorySum('checkbox-devis-specialite-1', Number($('.specialite-number-1').val())) +
+ calculateCategorySum('checkbox-devis-specialite-2', Number($('.specialite-number-2').val())) +
+ calculateCategorySum('checkbox-devis-specialite-3', Number($('.specialite-number-3').val()));
+let sumPetitdejeuner = calculateCategorySum('checkbox-devis-petitdejeuner-1', Number($('.petit-dejeuner-number-1').val())) +
+    calculateCategorySum('checkbox-devis-petitdejeuner-2', Number($('.petit-dejeuner-number-2').val()));
+let sumDejeuner = calculateCategorySum('checkbox-devis-dejeuner-1', Number($('.dejeuner-number-1').val())) +
+calculateCategorySum('checkbox-devis-dejeuner-2', Number($('.dejeuner-number-2').val())) +
+calculateCategorySum('checkbox-devis-dejeuner-3', Number($('.dejeuner-number-3').val())) +
+calculateCategorySum('checkbox-devis-dejeuner-4', Number($('.dejeuner-number-4').val()));
+let sumPause = calculateCategorySum('checkbox-devis-pause', Number($('.pause-aprem-number-1').val()));
+let sumDiner = calculateCategorySum('checkbox-devis-diner-1', Number($('.diner-number-1').val())) +
+calculateCategorySum('checkbox-devis-diner-2', Number($('.diner-number-2').val())) +
+calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val()));
+
+// Sum up all item and meal costs
+let totalMealAndItemCost = sumSpecialite + sumPetitdejeuner + sumDejeuner + sumPause + sumDiner;
+
+// Room and personal catering service cost
+const priceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
+const priceTraiteurPerso = Number($('.price-traiteur-perso').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
+
+// Calculate total before taxes
+let totalBeforeTaxes = totalStaffCost + totalMealAndItemCost + priceSalle + priceTraiteurPerso;
+
+// Calculate TVA (tax)
+const tvaRate = 0.2; // 20%
+let totalTVA = totalBeforeTaxes * tvaRate;
+
+// Calculate final totals
+let totalHT = totalBeforeTaxes;
+let totalTTC = totalHT + totalTVA;
+
+// Update the UI with the calculated values
+$('.total-ht').text(totalHT.toFixed(2).replace('.', ','));
+$('.total-ttc').text(totalTTC.toFixed(2).replace('.', ','));
+$('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
+
+// Update hidden input for form submission
+$('.hack42-send-value').val(totalHT.toFixed(2));
+}
+
+function formatTime(hourDecimal) {
+    let hours = Math.floor(hourDecimal % 24);
+    let minutes = Math.floor((hourDecimal % 1) * 60);
+    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
+}
+
+
+
+
 function isEventAfter22h00(eventTimeString) {
     const parts = eventTimeString.split(' au ');
     const endTimeString = parts.length > 1 ? parts[1] : '';
@@ -12,10 +123,8 @@ function isEventAfter22h00(eventTimeString) {
 
 $(document).ready(function() {
     if ($('input[name="Choix-traiteur"]:checked').length === 0) {
-        // If no radio button is selected by default, manually select Radio 1 and trigger change
         $('#Traiteur-n-1').prop('checked', true);
     }
-    // Now trigger change to ensure the page loads with the correct settings
     $('input[name="Choix-traiteur"]:checked').change();
     const initialAttendees = $('#nb-personnes-final-2').attr('data');
     $('#nb-personnes-final-2').val(initialAttendees);
@@ -164,108 +273,8 @@ function updateSecurityStaff(eventTimeString, numberOfAttendees) {
 }
 
 
-$('input[name="Choix-traiteur"]').change(function() {
-    let selectedValue = $('input[name="Choix-traiteur"]:checked').val();
-
-    let isRadio4Or5Selected = selectedValue === 'Traiteur personnalisé' || selectedValue === 'Pas de traiteur';
-    let isRadio1To3Selected = ['Traiteur n°1', 'Traiteur n°2', 'Traiteur n°3'].includes(selectedValue);
-
-    resetPricingCalculator();
-    updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected);
-});
-
-function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
-    const eventTimeString = $('#data-text-item-check').text();
-    const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
-    const [startHour, startMinute] = startTime.split('h').map(Number);
-    const [endHour, endMinute] = endTime.split('h').map(Number);
-    let eventStartHour = startHour + startMinute / 60;
-    let eventEndHour = endHour + endMinute / 60;
-    if (eventEndHour < eventStartHour) eventEndHour += 24; // Correctly handling events that end after midnight
-
-    // Define staff counts
-    const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
-    const numberOfSecurityStaff = Number($('#nombre-securite').text());
-    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
-
-    // Adjusted security staff timing to handle negative values correctly
-    let securityArrival = eventStartHour < 18 ? 17.5 : Math.min(eventStartHour - 0.5, 24);
-    let securityDeparture = Math.min(eventEndHour + 0.5, 24); // Preventing security departure time from going negative
-
-    // Catering and Regisseur staff timing for Scenario 1 and 2
-    let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
-    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
-    let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
-    let regisseurDeparture = eventEndHour + 1;
-
-    // Calculating staff costs
-    const YOUR_DEFAULT_CATERING_STAFF_COST = 35; // Adjusted for consistency
-    const securityStaffCost = numberOfSecurityStaff * 35 * Math.max(securityDeparture - securityArrival, 0); // Ensuring positive values
-    const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
-    const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
-
-    // Update staff presence messages directly
-    $('#temps-staff-securite').text(`Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`);
-    $('#temps-staff-traiteur').text(isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "Pas de staff traiteur requis.");
-    $('#temps-regisseur').text(`Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`);
-
-    const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
-    console.log(`Total Staff Cost: ${totalStaffCost}`);
-
-    $('#total-staff').text((cateringStaffCost + securityStaffCost + regisseurCost).toFixed(2).replace('.', ','));
 
 
-
-  
-
-   
- // Item and meal cost calculations
- let sumSpecialite = calculateCategorySum('checkbox-devis-specialite-1', Number($('.specialite-number-1').val())) +
- calculateCategorySum('checkbox-devis-specialite-2', Number($('.specialite-number-2').val())) +
- calculateCategorySum('checkbox-devis-specialite-3', Number($('.specialite-number-3').val()));
-let sumPetitdejeuner = calculateCategorySum('checkbox-devis-petitdejeuner-1', Number($('.petit-dejeuner-number-1').val())) +
-    calculateCategorySum('checkbox-devis-petitdejeuner-2', Number($('.petit-dejeuner-number-2').val()));
-let sumDejeuner = calculateCategorySum('checkbox-devis-dejeuner-1', Number($('.dejeuner-number-1').val())) +
-calculateCategorySum('checkbox-devis-dejeuner-2', Number($('.dejeuner-number-2').val())) +
-calculateCategorySum('checkbox-devis-dejeuner-3', Number($('.dejeuner-number-3').val())) +
-calculateCategorySum('checkbox-devis-dejeuner-4', Number($('.dejeuner-number-4').val()));
-let sumPause = calculateCategorySum('checkbox-devis-pause', Number($('.pause-aprem-number-1').val()));
-let sumDiner = calculateCategorySum('checkbox-devis-diner-1', Number($('.diner-number-1').val())) +
-calculateCategorySum('checkbox-devis-diner-2', Number($('.diner-number-2').val())) +
-calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val()));
-
-// Sum up all item and meal costs
-let totalMealAndItemCost = sumSpecialite + sumPetitdejeuner + sumDejeuner + sumPause + sumDiner;
-
-// Room and personal catering service cost
-const priceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
-const priceTraiteurPerso = Number($('.price-traiteur-perso').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
-
-// Calculate total before taxes
-let totalBeforeTaxes = totalStaffCost + totalMealAndItemCost + priceSalle + priceTraiteurPerso;
-
-// Calculate TVA (tax)
-const tvaRate = 0.2; // 20%
-let totalTVA = totalBeforeTaxes * tvaRate;
-
-// Calculate final totals
-let totalHT = totalBeforeTaxes;
-let totalTTC = totalHT + totalTVA;
-
-// Update the UI with the calculated values
-$('.total-ht').text(totalHT.toFixed(2).replace('.', ','));
-$('.total-ttc').text(totalTTC.toFixed(2).replace('.', ','));
-$('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
-
-// Update hidden input for form submission
-$('.hack42-send-value').val(totalHT.toFixed(2));
-}
-
-function formatTime(time) {
-    let hours = Math.floor(time);
-    let minutes = Math.floor((time - hours) * 60);
-    return `${hours.toString().padStart(2, '0')}h${minutes.toString().padStart(2, '0')}`;
-}
 
 
 
