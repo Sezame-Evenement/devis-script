@@ -250,47 +250,53 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
 
   
    
- // Item and meal cost calculations
- let sumSpecialite = calculateCategorySum('checkbox-devis-specialite-1', Number($('.specialite-number-1').val())) +
- calculateCategorySum('checkbox-devis-specialite-2', Number($('.specialite-number-2').val())) +
- calculateCategorySum('checkbox-devis-specialite-3', Number($('.specialite-number-3').val()));
- let sumPetitdejeuner = calculateCategorySum('checkbox-devis-petitdejeuner-1', Number($('.petit-dejeuner-number-1').val())) +
-     calculateCategorySum('checkbox-devis-petitdejeuner-2', Number($('.petit-dejeuner-number-2').val()));
- let sumDejeuner = calculateCategorySum('checkbox-devis-dejeuner-1', Number($('.dejeuner-number-1').val())) +
- calculateCategorySum('checkbox-devis-dejeuner-2', Number($('.dejeuner-number-2').val())) +
- calculateCategorySum('checkbox-devis-dejeuner-3', Number($('.dejeuner-number-3').val())) +
- calculateCategorySum('checkbox-devis-dejeuner-4', Number($('.dejeuner-number-4').val()));
- let sumPause = calculateCategorySum('checkbox-devis-pause', Number($('.pause-aprem-number-1').val()));
- let sumDiner = calculateCategorySum('checkbox-devis-diner-1', Number($('.diner-number-1').val())) +
- calculateCategorySum('checkbox-devis-diner-2', Number($('.diner-number-2').val())) +
- calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val()));
+// Item and meal cost calculations
+let sumSpecialite = calculateCategorySum('checkbox-devis-specialite-1', Number($('.specialite-number-1').val())) +
+    calculateCategorySum('checkbox-devis-specialite-2', Number($('.specialite-number-2').val())) +
+    calculateCategorySum('checkbox-devis-specialite-3', Number($('.specialite-number-3').val()));
+let sumPetitdejeuner = calculateCategorySum('checkbox-devis-petitdejeuner-1', Number($('.petit-dejeuner-number-1').val())) +
+    calculateCategorySum('checkbox-devis-petitdejeuner-2', Number($('.petit-dejeuner-number-2').val()));
+let sumDejeuner = calculateCategorySum('checkbox-devis-dejeuner-1', Number($('.dejeuner-number-1').val())) +
+    calculateCategorySum('checkbox-devis-dejeuner-2', Number($('.dejeuner-number-2').val())) +
+    calculateCategorySum('checkbox-devis-dejeuner-3', Number($('.dejeuner-number-3').val())) +
+    calculateCategorySum('checkbox-devis-dejeuner-4', Number($('.dejeuner-number-4').val()));
+let sumPause = calculateCategorySum('checkbox-devis-pause', Number($('.pause-aprem-number-1').val()));
+let sumDiner = calculateCategorySum('checkbox-devis-diner-1', Number($('.diner-number-1').val())) +
+    calculateCategorySum('checkbox-devis-diner-2', Number($('.diner-number-2').val())) +
+    calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val()));
 
- // Now update the UI for each category using the updateSumDisplay function
- updateSumDisplay('price-specialite', sumSpecialite);
- updateSumDisplay('price-petitdejeuner', sumPetitdejeuner);
- updateSumDisplay('price-dejeuner', sumDejeuner);
- updateSumDisplay('price-pause', sumPause);
- updateSumDisplay('price-diner', sumDiner);
+// Update the UI for each category using the updateSumDisplay function
+updateSumDisplay('price-specialite', sumSpecialite);
+updateSumDisplay('price-petitdejeuner', sumPetitdejeuner);
+updateSumDisplay('price-dejeuner', sumDejeuner);
+updateSumDisplay('price-pause', sumPause);
+updateSumDisplay('price-diner', sumDiner);
 
 // Sum up all item and meal costs
 let totalMealAndItemCost = sumSpecialite + sumPetitdejeuner + sumDejeuner + sumPause + sumDiner;
+
+// Apply 10% TVA for meal costs
+const mealTvaRate = 0.1; // 10%
+let mealTVA = totalMealAndItemCost * mealTvaRate;
 
 // Room and personal catering service cost
 const priceSalle = Number($('.price-salle').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 const priceTraiteurPerso = Number($('.price-traiteur-perso').text().replace(/[^0-9.-]+/g, "").replace(',', '.'));
 
-// Calculate total before taxes
-let totalBeforeTaxes = totalStaffCost + totalMealAndItemCost + priceSalle + priceTraiteurPerso;
+// Total cost before taxes for non-meal items
+let nonMealCosts = totalStaffCost + priceSalle + priceTraiteurPerso;
+const nonMealTvaRate = 0.2; // 20% for non-meal items
+let nonMealTVA = nonMealCosts * nonMealTvaRate;
 
-// Calculate TVA (tax)
-const tvaRate = 0.2; // 20%
-let totalTVA = totalBeforeTaxes * tvaRate;
+// Total TVA
+let totalTVA = mealTVA + nonMealTVA;
+
+// Calculate total before taxes
+let totalBeforeTaxes = totalMealAndItemCost + nonMealCosts;
 
 // Calculate final totals
 let totalHT = totalBeforeTaxes;
 let totalTTC = totalHT + totalTVA;
-
-
 
 // Update the UI with the calculated values
 $('.total-ht').text(totalHT.toFixed(2).replace('.', ','));
@@ -299,6 +305,7 @@ $('.price-tva').text(totalTVA.toFixed(2).replace('.', ','));
 
 // Update hidden input for form submission
 $('.hack42-send-value').val(totalHT.toFixed(2));
+
 }
 
 function formatTime(time) {
