@@ -203,31 +203,25 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     let eventEndHour = endHour + endMinute / 60;
     if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
-    // Define staff counts
     const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
-    // Adjust security staff timing based on event start time
     let securityArrival, securityDeparture;
     if (eventStartHour >= 18 || eventStartHour <= 6) {
-        // For events starting after 18h or before 6h, security arrives 30 minutes before
         securityArrival = eventStartHour - 0.5;
     } else {
-        // For events starting at or before 18h, security arrives at 17:30
         securityArrival = 17.5;
     }
     securityDeparture = eventEndHour + 0.5;
-
-    // Ensure security arrival time is not calculated for times beyond midnight in a negative context
     if (securityArrival < 0) securityArrival += 24;
 
-    // Calculate security staff cost
     let securityHoursWorked = securityDeparture - securityArrival;
-    if (securityHoursWorked < 0) securityHoursWorked += 24; // Adjust for overnight duration
+    if (securityHoursWorked < 0) securityHoursWorked += 24;
     const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
 
-    // Catering and Regisseur staff timing
+    console.log(`Security Staff: Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
+
     let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
     let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
     let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
@@ -237,16 +231,17 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
     const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
 
-    // Update staff presence messages directly
+    console.log(`Catering Staff: Hours Worked = ${cateringDeparture - cateringArrival}, Cost = ${cateringStaffCost.toFixed(2)}€`);
+    console.log(`Regisseur: Hours Worked = ${regisseurDeparture - regisseurArrival}, Cost = ${regisseurCost.toFixed(2)}€`);
+
     $('#temps-staff-securite').text(`Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`);
     $('#temps-staff-traiteur').text(isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "");
     $('#temps-regisseur').text(`Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`);
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
+    console.log(`Total Staff Cost: ${totalStaffCost.toFixed(2)}€`);
     $('#total-staff').text((cateringStaffCost + securityStaffCost + regisseurCost).toFixed(2).replace('.', ','));
 
-
-  
 
 
   
