@@ -119,10 +119,11 @@ function getNumberOfCateringTeamMembers(numberOfAttendees) {
         { min: 950, max: 999, team: 21 }
     ];
     let cateringTeamSize = cateringBrackets.find(bracket => numberOfAttendees >= bracket.min && numberOfAttendees <= bracket.max);
-    return cateringTeamSize ? cateringTeamSize.team : "Error";
+    // If not found, return the team size of the last bracket
+    return cateringTeamSize ? cateringTeamSize.team : cateringBrackets[cateringBrackets.length - 1].team;
 }
 
-function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees) {
+function getNumberOfSecurityMembers(numberOfAttendees) {
     const securityBrackets = [
         { min: 0, max: 99, team: 1 },
         { min: 100, max: 149, team: 2 },
@@ -133,8 +134,10 @@ function getNumberOfSecurityMembers(numberOfAttendees, numberOfSecurityAttendees
         { min: 800, max: 999, team: 7 },
     ];
     let securityTeamSize = securityBrackets.find(bracket => numberOfAttendees >= bracket.min && numberOfAttendees <= bracket.max);
-    return securityTeamSize ? securityTeamSize.team : "Error";
+    // If not found, return the team size of the last bracket
+    return securityTeamSize ? securityTeamSize.team : securityBrackets[securityBrackets.length - 1].team;
 }
+
 
 function updateTeamMembers() {
     console.log("updateTeamMembers called");
