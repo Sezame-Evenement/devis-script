@@ -220,20 +220,20 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
         securityArrival = 17.5;
     }
     securityDeparture = eventEndHour + 0.5;
+    if (securityDeparture < securityArrival) securityDeparture += 24; // Fix for negatives when event crosses midnight
 
     let securityHoursWorked = securityDeparture - securityArrival;
-    if (securityHoursWorked < 0) securityHoursWorked += 24;
     const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
-
-    console.log(`Security Staff: Arrival = ${securityArrival}, Departure = ${securityDeparture}, Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
 
     let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
     if (cateringArrival !== null && cateringArrival < 0) cateringArrival += 24; // Adjust for negative arrival time
     let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
+    if (cateringDeparture !== null && cateringDeparture < cateringArrival) cateringDeparture += 24; // Fix for negatives when event crosses midnight
 
     let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
     if (regisseurArrival < 0) regisseurArrival += 24; // Adjust for negative arrival time
     let regisseurDeparture = eventEndHour + 1;
+    if (regisseurDeparture < regisseurArrival) regisseurDeparture += 24; // Fix for negatives when event crosses midnight
 
     // Calculate costs for regisseur and catering, including adjusted arrival times
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
