@@ -213,31 +213,40 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
     let securityArrival, securityDeparture;
-    if (eventStartHour >= 18 || eventStartHour <= 6) {
+    if (eventStartHour >= 18 || eventStartHour < 6) { // Adjusted condition to include events starting at midnight
         securityArrival = eventStartHour - 0.5;
+        if (securityArrival < 0) securityArrival += 24; // Adjust for arrival time before midnight
     } else {
         securityArrival = 17.5;
     }
     securityDeparture = eventEndHour + 0.5;
-    if (securityArrival < 0) securityArrival += 24;
 
     let securityHoursWorked = securityDeparture - securityArrival;
     if (securityHoursWorked < 0) securityHoursWorked += 24;
     const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
 
-    console.log(`Security Staff: Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
+    console.log(`Security Staff: Arrival = ${securityArrival}, Departure = ${securityDeparture}, Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
 
     let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
+    if (cateringArrival !== null && cateringArrival < 0) cateringArrival += 24; // Adjust for negative arrival time
     let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
+
     let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
+    if (regisseurArrival < 0) regisseurArrival += 24; // Adjust for negative arrival time
     let regisseurDeparture = eventEndHour + 1;
 
+    // Calculate costs for regisseur and catering, including adjusted arrival times
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
     const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
 
     console.log(`Catering Staff: Hours Worked = ${cateringDeparture - cateringArrival}, Cost = ${cateringStaffCost.toFixed(2)}€`);
     console.log(`Regisseur: Hours Worked = ${regisseurDeparture - regisseurArrival}, Cost = ${regisseurCost.toFixed(2)}€`);
+   
+
+
+
+
 
   // For security staff
 const securityStaffMessage = `Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`;
