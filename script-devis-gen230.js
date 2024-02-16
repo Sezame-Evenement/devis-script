@@ -208,57 +208,53 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     let eventEndHour = endHour + endMinute / 60;
 
     // Adjust for events ending after midnight
-    if (eventEndHour <= eventStartHour) {
-        eventEndHour += 24; // This ensures the end hour is always after the start hour in our calculations
+    if (eventEndHour < eventStartHour) {
+        eventEndHour += 24;
     }
 
     const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
     const numberOfSecurityStaff = Number($('#nombre-securite').text());
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
-    // Handling security staff arrival and departure
-    let securityArrival;
-    if (eventStartHour >= 18 || eventStartHour < 6) {
-        // If the event is in the evening or early morning, security arrives 30 minutes before
-        securityArrival = eventStartHour - 0.5;
-    } else {
-        // Otherwise, security arrives at 17:30
-        securityArrival = 17.5;
-    }
-    let securityDeparture = eventEndHour + 0.5; // Security leaves 30 minutes after the event ends
+    // Calculate security staff arrival and departure times
+    let securityArrival = (eventStartHour >= 18 || eventStartHour < 6) ? eventStartHour - 0.5 : 17.5;
+    let securityDeparture = eventEndHour + 0.5;
 
-    // Correcting security arrival time for a 24-hour format
-    if (securityArrival < 0) securityArrival += 24;
+    // Ensure securityArrival is within a 24-hour format
+    if (securityArrival < 0) {
+        securityArrival += 24;
+    }
+
+    // Ensure times are within 24 hours for calculations crossing midnight
     securityArrival = securityArrival % 24;
     securityDeparture = securityDeparture % 24;
-    if (securityDeparture <= securityArrival) securityDeparture += 24; // Adjust for overnight events
+    
+    if (securityDeparture <= securityArrival) {
+        // This accounts for shifts that end after midnight
+        securityDeparture += 24;
+    }
 
     let securityHoursWorked = securityDeparture - securityArrival;
     const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
 
-    // Catering and Regisseur staff arrival and departure
-    // For Radio 1 to 3, they arrive 2 hours before and leave 1 hour after. For Radio 4 and 5, Regisseur arrives 1 hour before and leaves 1 hour after; Catering staff is not needed.
-    let staffArrivalOffset = isRadio1To3Selected ? 2 : 1;
-    let cateringArrival = isRadio1To3Selected ? eventStartHour - staffArrivalOffset : null;
-    let regisseurArrival = eventStartHour - staffArrivalOffset;
-    let staffDeparture = eventEndHour + 1;
+    console.log(`Security Staff: Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
 
-    // Ensure that arrival times are not negative and are adjusted for a 24-hour clock
-    cateringArrival = cateringArrival != null && cateringArrival < 0 ? cateringArrival + 24 : cateringArrival;
-    regisseurArrival = regisseurArrival < 0 ? regisseurArrival + 24 : regisseurArrival;
+    // Catering staff calculations
+    let cateringArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - 2) : null; // Ensure arrival isn't negative
+    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
 
-    // No need to adjust departure times as they are always positive by design
+    // Regisseur calculations
+    let regisseurArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - 2) : Math.max(0, eventStartHour - 1);
+    let regisseurDeparture = eventEndHour + 1;
 
-    // Example log to console or update the UI here with the calculated times and costs
-    console.log(`Security Staff: Hours Worked = ${securityHoursWorked.toFixed(2)}, Cost = ${securityStaffCost.toFixed(2)}€`);
-    if (cateringArrival !== null) {
-        let cateringHoursWorked = staffDeparture - cateringArrival;
-        console.log(`Catering Staff: Arrival at ${cateringArrival.toFixed(2)}h, Departure at ${staffDeparture.toFixed(2)}h, Hours Worked = ${cateringHoursWorked.toFixed(2)}`);
+    // Adjust for calculations crossing midnight
+    regisseurArrival = regisseurArrival % 24;
+    regisseurDeparture = regisseurDeparture % 24;
+
+    if (regisseurDeparture <= regisseurArrival) {
+        // Adjust for shifts ending after midnight
+        regisseurDeparture += 24;
     }
-    let regisseurHoursWorked = staffDeparture - regisseurArrival;
-    console.log(`Regisseur: Arrival at ${regisseurArrival.toFixed(2)}h, Departure at ${staffDeparture.toFixed(2)}h, Hours Worked = ${regisseurHoursWorked.toFixed(2)}`);
-
-
 
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
