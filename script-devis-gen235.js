@@ -199,43 +199,38 @@ $('input[name="Choix-traiteur"]').change(function() {
     updateTeamMembers();
 });
 
-const eventTimeString = $('#data-text-item-check').text();
-const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
-const [startHour, startMinute] = startTime.split('h').map(Number);
-const [endHour, endMinute] = endTime.split('h').map(Number);
-let eventStartHour = startHour + startMinute / 60;
-let eventEndHour = endHour + endMinute / 60;
-if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
+function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
+    const eventTimeString = $('#data-text-item-check').text();
+    const [startTime, endTime] = eventTimeString.split(' au ').map(part => part.split('à')[1].trim());
+    const [startHour, startMinute] = startTime.split('h').map(Number);
+    const [endHour, endMinute] = endTime.split('h').map(Number);
+    let eventStartHour = startHour + startMinute / 60;
+    let eventEndHour = endHour + endMinute / 60;
+    if (eventEndHour < eventStartHour) eventEndHour += 24; // Adjust for events ending after midnight
 
-const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
-const numberOfSecurityStaff = Number($('#nombre-securite').text());
-const numberOfRegisseurs = Number($('#nombre-regisseur').text());
+    const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
+    const numberOfSecurityStaff = Number($('#nombre-securite').text());
+    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
-let securityArrival, securityDeparture;
-if (eventStartHour >= 18 || eventStartHour <= 6) {
-    securityArrival = eventStartHour - 0.5;
-} else {
-    securityArrival = 17.5;
-}
-securityDeparture = eventEndHour + 0.5;
-if (securityArrival < 0) securityArrival += 24;
+    let securityArrival, securityDeparture;
+    if (eventStartHour >= 18 || eventStartHour <= 6) {
+        securityArrival = eventStartHour - 0.5;
+    } else {
+        securityArrival = 17.5;
+    }
+    securityDeparture = eventEndHour + 0.5;
+    if (securityArrival < 0) securityArrival += 24;
 
-let securityHoursWorked = securityDeparture - securityArrival;
-if (securityHoursWorked < 0) securityHoursWorked += 24;
-const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
+    let securityHoursWorked = securityDeparture - securityArrival;
+    if (securityHoursWorked < 0) securityHoursWorked += 24;
+    const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
 
-console.log(`Security Staff: Arrival = ${securityArrival}, Departure = ${securityDeparture}, Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
+    console.log(`Security Staff: Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
 
-let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
-let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
-if (cateringArrival !== null && cateringDeparture !== null) {
-    console.log(`Catering Staff: Arrival = ${cateringArrival}, Departure = ${cateringDeparture}`);
-
-
-let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
-let regisseurDeparture = eventEndHour + 1;
-console.log(`Regisseur: Arrival = ${regisseurArrival}, Departure = ${regisseurDeparture}`);
-
+    let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
+    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
+    let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
+    let regisseurDeparture = eventEndHour + 1;
 
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
