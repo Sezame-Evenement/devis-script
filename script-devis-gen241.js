@@ -10,8 +10,10 @@ function isEventAfter22h00(eventTimeString) {
 
     console.log(`isEventAfter22h00: Event ends at ${hours}h${minutes}`);
 
-    return hours >= 22 || (hours < 6 && hours >= 0);
+    // Adjusted condition to include events ending exactly at 6h00
+    return hours >= 22 || (hours <= 6 && hours >= 0);
 }
+
 
 
 $(document).ready(function() {
