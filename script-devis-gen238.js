@@ -213,58 +213,56 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     const numberOfRegisseurs = Number($('#nombre-regisseur').text());
 
     let securityArrival, securityDeparture;
-    if (eventStartHour >= 18 || eventStartHour < 6) { // Adjusted condition to include events starting at midnight
+    if (eventStartHour >= 18 || eventStartHour < 6) {
         securityArrival = eventStartHour - 0.5;
-        if (securityArrival < 0) securityArrival += 24; // Adjust for arrival time before midnight
+        if (securityArrival < 0) securityArrival += 24;
     } else {
         securityArrival = 17.5;
     }
     securityDeparture = eventEndHour + 0.5;
-    if (securityDeparture < securityArrival) securityDeparture += 24; // Fix for negatives when event crosses midnight
+    if (securityDeparture < securityArrival) securityDeparture += 24;
 
     let securityHoursWorked = securityDeparture - securityArrival;
     const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
 
     let cateringArrival = isRadio1To3Selected ? eventStartHour - 2 : null;
-    if (cateringArrival !== null && cateringArrival < 0) cateringArrival += 24; // Adjust for negative arrival time
+    if (cateringArrival !== null && cateringArrival < 0) cateringArrival += 24;
     let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
-    if (cateringDeparture !== null && cateringDeparture < cateringArrival) cateringDeparture += 24; // Fix for negatives when event crosses midnight
+    if (cateringDeparture !== null && cateringDeparture < cateringArrival) cateringDeparture += 24;
 
     let regisseurArrival = isRadio1To3Selected ? eventStartHour - 2 : eventStartHour - 1;
-    if (regisseurArrival < 0) regisseurArrival += 24; // Adjust for negative arrival time
+    if (regisseurArrival < 0) regisseurArrival += 24;
     let regisseurDeparture = eventEndHour + 1;
-    if (regisseurDeparture < regisseurArrival) regisseurDeparture += 24; // Fix for negatives when event crosses midnight
+    if (regisseurDeparture < regisseurArrival) regisseurDeparture += 24;
 
-    // Calculate costs for regisseur and catering, including adjusted arrival times
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
-    const cateringStaffCost = isRadio1To3Selected ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
+    const cateringStaffCost = isRadio1To3Selected && numberOfCateringStaff > 0 ? numberOfCateringStaff * YOUR_DEFAULT_CATERING_STAFF_COST * (cateringDeparture - cateringArrival) : 0;
 
-    console.log(`Catering Staff: Hours Worked = ${cateringDeparture - cateringArrival}, Cost = ${cateringStaffCost.toFixed(2)}€`);
-    console.log(`Regisseur: Hours Worked = ${regisseurDeparture - regisseurArrival}, Cost = ${regisseurCost.toFixed(2)}€`);
-   
+    // For security staff
+    const securityStaffMessage = numberOfSecurityStaff > 0 ? 
+        `Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.` : 
+        "Le staff sécurité ne sera pas présent.";
 
+    // For catering staff
+    const cateringStaffMessage = numberOfCateringStaff > 0 && isRadio1To3Selected ? 
+        `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : 
+        "Le staff traiteur ne sera pas présent.";
 
+    // For stage manager (régisseur)
+    const regisseurMessage = `Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`;
 
+    $('#temps-staff-securite').text(securityStaffMessage);
+    $('#staff-securite-text').val(securityStaffMessage);
+    $('.temps-staff-securite-e2').text(securityStaffMessage);
 
+    $('#temps-staff-traiteur').text(cateringStaffMessage);
+    $('#staff-traiteur-text').val(cateringStaffMessage);
+    $('.temps-staff-traiteur-e2').text(cateringStaffMessage);
 
-  // For security staff
-const securityStaffMessage = `Le staff sécurité arrivera à ${formatTime(securityArrival)} et partira à ${formatTime(securityDeparture)}. Pour un total de ${securityStaffCost.toFixed(2)}€.`;
-$('#temps-staff-securite').text(securityStaffMessage);
-$('#staff-securite-text').val(securityStaffMessage); // Set value for input
-$('.temps-staff-securite-e2').text(securityStaffMessage); // Set text for block
-
-// For catering staff
-const cateringStaffMessage = isRadio1To3Selected ? `Le staff traiteur arrivera à ${formatTime(cateringArrival)} et partira à ${formatTime(cateringDeparture)}. Pour un total de ${cateringStaffCost.toFixed(2)}€.` : "";
-$('#temps-staff-traiteur').text(cateringStaffMessage);
-$('#staff-traiteur-text').val(cateringStaffMessage); // Set value for input
-$('.temps-staff-traiteur-e2').text(cateringStaffMessage); // Set text for block
-
-// For stage manager (régisseur)
-const regisseurMessage = `Le staff régisseur arrivera à ${formatTime(regisseurArrival)} et partira à ${formatTime(regisseurDeparture)}. Pour un total de ${regisseurCost.toFixed(2)}€.`;
-$('#temps-regisseur').text(regisseurMessage);
-$('#staff-regisseur-text').val(regisseurMessage); // Set value for input
-$('.temps-regisseur-e2').text(regisseurMessage); // Set text for block
+    $('#temps-regisseur').text(regisseurMessage);
+    $('#staff-regisseur-text').val(regisseurMessage);
+    $('.temps-regisseur-e2').text(regisseurMessage);
 
 
     const totalStaffCost = cateringStaffCost + securityStaffCost + regisseurCost;
