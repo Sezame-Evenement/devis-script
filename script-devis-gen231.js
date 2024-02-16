@@ -207,54 +207,50 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
 
-    // Adjust for events ending after midnight
     if (eventEndHour < eventStartHour) {
         eventEndHour += 24;
     }
 
-    const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
-    const numberOfSecurityStaff = Number($('#nombre-securite').text());
-    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
-
-    // Calculate security staff arrival and departure times
-    let securityArrival = (eventStartHour >= 18 || eventStartHour < 6) ? eventStartHour - 0.5 : 17.5;
-    let securityDeparture = eventEndHour + 0.5;
-
-    // Ensure securityArrival is within a 24-hour format
-    if (securityArrival < 0) {
-        securityArrival += 24;
+    // Security staff calculations
+    let securityArrival;
+    if (eventStartHour >= 18 || (eventStartHour >= 0 && eventStartHour < 6)) {
+        // If the event is at 18h or later, or between 00h00 and 06h00, security arrives 30 minutes before
+        securityArrival = eventStartHour - 0.5;
+        if (securityArrival < 0) securityArrival += 24; // Adjust if crossing midnight backwards
+    } else {
+        // For all other times, security arrives at 17:30
+        securityArrival = 17.5;
     }
+    let securityDeparture = eventEndHour + 0.5;
 
     // Ensure times are within 24 hours for calculations crossing midnight
     securityArrival = securityArrival % 24;
     securityDeparture = securityDeparture % 24;
-    
     if (securityDeparture <= securityArrival) {
-        // This accounts for shifts that end after midnight
+        // Adjust for shifts that end after midnight
         securityDeparture += 24;
     }
 
-    let securityHoursWorked = securityDeparture - securityArrival;
-    const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
+    // Adjusting regisseur and catering staff calculations based on radio selection
+    let staffArrivalOffset = isRadio4Or5Selected ? 1 : 2; // 1 hour before for 4 and 5, 2 hours before for 1 to 3
+    let staffDepartureOffset = 1; // Both depart 1 hour after
 
-    console.log(`Security Staff: Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
+    let regisseurArrival = Math.max(0, eventStartHour - staffArrivalOffset);
+    let regisseurDeparture = eventEndHour + staffDepartureOffset;
 
-    // Catering staff calculations
-    let cateringArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - 2) : null; // Ensure arrival isn't negative
-    let cateringDeparture = isRadio1To3Selected ? eventEndHour + 1 : null;
+    // No catering staff needed for radio 4 and 5
+    let cateringArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - staffArrivalOffset) : null;
+    let cateringDeparture = isRadio1To3Selected ? eventEndHour + staffDepartureOffset : null;
 
-    // Regisseur calculations
-    let regisseurArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - 2) : Math.max(0, eventStartHour - 1);
-    let regisseurDeparture = eventEndHour + 1;
+    // Ensure all arrival and departure times are correctly adjusted for crossing midnight
+    [regisseurArrival, regisseurDeparture, cateringArrival, cateringDeparture].forEach(time => {
+        if (time != null) {
+            if (time < 0) time += 24; // Adjust if negative
+            time = time % 24; // Ensure within 24-hour range
+            if (time <= regisseurArrival) time += 24; // Adjust for shifts ending after midnight
+        }
+    });
 
-    // Adjust for calculations crossing midnight
-    regisseurArrival = regisseurArrival % 24;
-    regisseurDeparture = regisseurDeparture % 24;
-
-    if (regisseurDeparture <= regisseurArrival) {
-        // Adjust for shifts ending after midnight
-        regisseurDeparture += 24;
-    }
 
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
