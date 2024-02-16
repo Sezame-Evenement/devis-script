@@ -207,50 +207,56 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
     let eventStartHour = startHour + startMinute / 60;
     let eventEndHour = endHour + endMinute / 60;
 
+    // Adjust for events ending after midnight
     if (eventEndHour < eventStartHour) {
         eventEndHour += 24;
     }
 
-    // Security staff calculations
-    let securityArrival;
-    if (eventStartHour >= 18 || (eventStartHour >= 0 && eventStartHour < 6)) {
-        // If the event is at 18h or later, or between 00h00 and 06h00, security arrives 30 minutes before
-        securityArrival = eventStartHour - 0.5;
-        if (securityArrival < 0) securityArrival += 24; // Adjust if crossing midnight backwards
-    } else {
-        // For all other times, security arrives at 17:30
-        securityArrival = 17.5;
+    const numberOfCateringStaff = Number($('#nombre-equipier-traiteur').text());
+    const numberOfSecurityStaff = Number($('#nombre-securite').text());
+    const numberOfRegisseurs = Number($('#nombre-regisseur').text());
+
+    // Calculate security staff arrival and departure times
+    let securityArrival = (eventStartHour >= 18 || eventStartHour < 6) ? eventStartHour - 0.5 : 17.5;
+    if (eventStartHour < 1) { // Special handling for events starting just after midnight
+        securityArrival = 23.5; // Assume security arrives half an hour before midnight
     }
     let securityDeparture = eventEndHour + 0.5;
+
+    // Ensure securityArrival is within a 24-hour format
+    if (securityArrival < 0) {
+        securityArrival += 24;
+    }
 
     // Ensure times are within 24 hours for calculations crossing midnight
     securityArrival = securityArrival % 24;
     securityDeparture = securityDeparture % 24;
+    
     if (securityDeparture <= securityArrival) {
-        // Adjust for shifts that end after midnight
+        // This accounts for shifts that end after midnight
         securityDeparture += 24;
     }
 
-    // Adjusting regisseur and catering staff calculations based on radio selection
-    let staffArrivalOffset = isRadio4Or5Selected ? 1 : 2; // 1 hour before for 4 and 5, 2 hours before for 1 to 3
-    let staffDepartureOffset = 1; // Both depart 1 hour after
+    let securityHoursWorked = securityDeparture - securityArrival;
+    const securityStaffCost = numberOfSecurityStaff * 35 * securityHoursWorked;
 
+    console.log(`Security Staff: Hours Worked = ${securityHoursWorked}, Cost = ${securityStaffCost.toFixed(2)}€`);
+
+    // Catering and regisseur staff calculations, adjust arrival based on radio selection
+    let staffArrivalOffset = isRadio4Or5Selected ? 1 : 2; // 1 hour for radios 4 and 5, 2 hours for 1 to 3
+    let cateringArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - staffArrivalOffset) : null;
     let regisseurArrival = Math.max(0, eventStartHour - staffArrivalOffset);
+    let staffDepartureOffset = 1; // Both depart 1 hour after
+    let cateringDeparture = isRadio1To3Selected ? eventEndHour + staffDepartureOffset : null;
     let regisseurDeparture = eventEndHour + staffDepartureOffset;
 
-    // No catering staff needed for radio 4 and 5
-    let cateringArrival = isRadio1To3Selected ? Math.max(0, eventStartHour - staffArrivalOffset) : null;
-    let cateringDeparture = isRadio1To3Selected ? eventEndHour + staffDepartureOffset : null;
-
-    // Ensure all arrival and departure times are correctly adjusted for crossing midnight
+    // Adjust for calculations crossing midnight, ensuring all times are correctly calculated
     [regisseurArrival, regisseurDeparture, cateringArrival, cateringDeparture].forEach(time => {
-        if (time != null) {
-            if (time < 0) time += 24; // Adjust if negative
-            time = time % 24; // Ensure within 24-hour range
-            if (time <= regisseurArrival) time += 24; // Adjust for shifts ending after midnight
-        }
+        if (time != null && time < 0) time += 24; // Adjust if negative
+        // No need to modulo 24 here as we're not dealing with times beyond 24 hours
+        if (cateringDeparture != null && cateringDeparture <= cateringArrival) cateringDeparture += 24;
+        if (regisseurDeparture <= regisseurArrival) regisseurDeparture += 24; // Adjust for shifts ending after midnight
     });
-
 
     const YOUR_DEFAULT_CATERING_STAFF_COST = 35;
     const regisseurCost = numberOfRegisseurs * 40 * (regisseurDeparture - regisseurArrival);
