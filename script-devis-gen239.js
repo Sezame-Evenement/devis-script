@@ -254,14 +254,19 @@ function updatePricesAndTotal(isRadio4Or5Selected, isRadio1To3Selected) {
 
     $('#temps-staff-securite').text(securityStaffMessage);
     $('#staff-securite-text').val(securityStaffMessage);
+    $('#staff-securite-text-e2').val(securityStaffMessage);
     $('.temps-staff-securite-e2').text(securityStaffMessage);
+    
 
     $('#temps-staff-traiteur').text(cateringStaffMessage);
     $('#staff-traiteur-text').val(cateringStaffMessage);
+    $('#staff-traiteur-text-e2').val(cateringStaffMessage);
+
     $('.temps-staff-traiteur-e2').text(cateringStaffMessage);
 
     $('#temps-regisseur').text(regisseurMessage);
     $('#staff-regisseur-text').val(regisseurMessage);
+    $('#staff-regisseur-text-e2').val(regisseurMessage);
     $('.temps-regisseur-e2').text(regisseurMessage);
 
 
