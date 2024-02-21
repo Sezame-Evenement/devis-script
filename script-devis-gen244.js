@@ -292,10 +292,13 @@ let sumDejeuner = calculateCategorySum('checkbox-devis-dejeuner-1', Number($('.d
     calculateCategorySum('checkbox-devis-dejeuner-2', Number($('.dejeuner-number-2').val())) +
     calculateCategorySum('checkbox-devis-dejeuner-3', Number($('.dejeuner-number-3').val())) +
     calculateCategorySum('checkbox-devis-dejeuner-4', Number($('.dejeuner-number-4').val()));
-let sumPause = calculateCategorySum('checkbox-devis-pause', Number($('.pause-aprem-number-1').val()));
+let sumPause = calculateCategorySum('checkbox-devis-pause-1', Number($('.pause-aprem-number-1').val())) +
+    calculateCategorySum('checkbox-devis-pause-2', Number($('.pause-aprem-number-2').val()));
 let sumDiner = calculateCategorySum('checkbox-devis-diner-1', Number($('.diner-number-1').val())) +
     calculateCategorySum('checkbox-devis-diner-2', Number($('.diner-number-2').val())) +
-    calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val()));
+    calculateCategorySum('checkbox-devis-diner-3', Number($('.diner-number-3').val())) +
+    calculateCategorySum('checkbox-devis-diner-4', Number($('.diner-number-4').val()));
+
 
 // Update the UI for each category using the updateSumDisplay function
 updateSumDisplay('price-specialite', sumSpecialite);
