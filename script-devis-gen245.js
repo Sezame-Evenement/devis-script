@@ -79,8 +79,7 @@ function updateSecurityStaffBasedOnEventTime(eventTimeString) {
     }
 }
 
-// Note: Make sure all other functions like updatePricesAndTotal, updateTeamMembers, 
-// updateSecurityStaff, and isEventAfter22h00 are defined and correctly implemented as needed.
+
 
 
 
