@@ -443,7 +443,11 @@ function updatePriceField(sourceSelector, targetSelector) {
 
 $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is-3, .ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     if ($(this).hasClass('ms-radio-button-tab-is-4')) {
-        initialPriceTraiteurPerso = 500;
+        // Retrieve the price from the .p-b-f element and parse it
+        var traiteurPersoPriceText = $('.p-b-f').text();
+        var traiteurPersoPrice = parseFloat(traiteurPersoPriceText.replace(/[^0-9.-]+/g, "")); // Remove non-numeric characters for safety
+        // Set the initialPriceTraiteurPerso to the retrieved value, or default to 500 if invalid
+        initialPriceTraiteurPerso = !isNaN(traiteurPersoPrice) && traiteurPersoPrice > 0 ? traiteurPersoPrice : 500;
     } else if ($(this).hasClass('ms-radio-button-tab-is-1') || $(this).hasClass('ms-radio-button-tab-is-2') || $(this).hasClass('ms-radio-button-tab-is-3')) {
         initialPriceTraiteurPerso = 120;
     } else {
@@ -451,6 +455,7 @@ $('.ms-radio-button-tab-is-1, .ms-radio-button-tab-is-2, .ms-radio-button-tab-is
     }
     resetPricingCalculator();
 });
+
 
 $('.ms-radio-button-tab-is-4, .ms-radio-button-tab-is-5').click(function() {
     console.log("Radio button 4 or 5 clicked");
